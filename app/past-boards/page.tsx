@@ -34,6 +34,11 @@ export default function PastBoardsPage() {
   ] = useState(true);
 
   const [
+    isDeleting,
+    setIsDeleting,
+  ] = useState(false);
+
+  const [
     error,
     setError,
   ] = useState<string | null>(
@@ -80,6 +85,66 @@ export default function PastBoardsPage() {
     loadBoards();
   }, []);
 
+  async function handleDeleteBoard(
+    board: SavedBoard
+  ) {
+    const confirmed =
+      window.confirm(
+        `Delete "${board.name}"? This cannot be undone.`
+      );
+
+    if (!confirmed) {
+      return;
+    }
+
+    setError(null);
+    setIsDeleting(true);
+
+    try {
+      const response =
+        await fetch(
+          `/api/boards/${board.id}`,
+          {
+            method: 'DELETE',
+          }
+        );
+
+      const data =
+        await response.json();
+
+      if (!response.ok) {
+        setError(
+          typeof data.error ===
+            'string'
+            ? data.error
+            : 'Could not delete board.'
+        );
+
+        return;
+      }
+
+      setBoards(
+        (currentBoards) =>
+          currentBoards.filter(
+            (currentBoard) =>
+              currentBoard.id !==
+              board.id
+          )
+      );
+
+      setSelectedBoard(null);
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'Could not delete board.';
+
+      setError(message);
+    } finally {
+      setIsDeleting(false);
+    }
+  }
+
   const visibleBoards =
     boards.filter((board) =>
       board.name
@@ -122,7 +187,7 @@ export default function PastBoardsPage() {
         </div>
       )}
 
-      {/* Loading */}
+      {/* Boards */}
       {isLoading ? (
         <div className="flex min-h-64 items-center justify-center">
           <p className="text-gray-500">
@@ -173,7 +238,7 @@ export default function PastBoardsPage() {
         </div>
       )}
 
-      {/* Enlarged board */}
+      {/* Enlarged board modal */}
       {selectedBoard && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-6"
@@ -182,12 +247,13 @@ export default function PastBoardsPage() {
           }
         >
           <div
-            className="w-full max-w-2xl rounded-xl bg-white p-6 shadow-xl"
+            className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-white p-6 shadow-xl"
             onClick={(event) =>
               event.stopPropagation()
             }
           >
-            <div className="mb-5 flex items-center justify-between">
+            {/* Modal header */}
+            <div className="mb-5 flex items-start justify-between">
               <div>
                 <h2 className="text-2xl font-bold">
                   {
@@ -215,12 +281,45 @@ export default function PastBoardsPage() {
               </button>
             </div>
 
+            {/* Enlarged 3x3 board */}
             <BoardGrid
               board={
                 selectedBoard
               }
               large
             />
+
+            {/* Board actions */}
+            <div className="mt-6 flex items-center justify-end gap-3">
+              {/*
+                EDIT BOARD WILL GO HERE NEXT.
+
+                Eventually this will take the user
+                back to something like:
+
+                /?boardId=<board-id>
+
+                Then the home page will load that
+                exact board into OutfitBuilder.
+              */}
+
+              <button
+                type="button"
+                disabled={
+                  isDeleting
+                }
+                onClick={() =>
+                  handleDeleteBoard(
+                    selectedBoard
+                  )
+                }
+                className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {isDeleting
+                  ? 'Deleting...'
+                  : 'Delete Board'}
+              </button>
+            </div>
           </div>
         </div>
       )}
