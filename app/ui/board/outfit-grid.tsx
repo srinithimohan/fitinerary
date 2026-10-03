@@ -34,60 +34,47 @@ export default function OutfitGrid({
   function handleAddFromCloset(
     item: ClothingItem
   ) {
-    setCells(
-      (currentCells) => {
-        const alreadyOnBoard =
-          currentCells.some(
-            (cell) =>
-              cell.clothingItemId ===
-              item.id
-          );
-
-        if (
-          alreadyOnBoard
-        ) {
-          return currentCells;
-        }
-
-        const firstEmptyIndex =
-          currentCells.findIndex(
-            (cell) =>
-              cell.image ===
-              null
-          );
-
-        if (
-          firstEmptyIndex ===
-          -1
-        ) {
-          return currentCells;
-        }
-
-        return currentCells.map(
-          (
-            cell,
-            index
-          ) =>
-            index ===
-            firstEmptyIndex
-              ? {
-                  ...cell,
-
-                  image:
-                    item.image,
-
-                  clothingItemId:
-                    item.id,
-
-                  file: null,
-
-                  snapshotPath:
-                    null,
-                }
-              : cell
+    setCells((currentCells) => {
+      const alreadyOnBoard =
+        currentCells.some(
+          (cell) =>
+            cell.clothingItemId ===
+            item.id
         );
+
+      if (alreadyOnBoard) {
+        return currentCells;
       }
-    );
+
+      const firstEmptyIndex =
+        currentCells.findIndex(
+          (cell) =>
+            cell.image === null
+        );
+
+      if (firstEmptyIndex === -1) {
+        return currentCells;
+      }
+
+      return currentCells.map(
+        (cell, index) =>
+          index === firstEmptyIndex
+            ? {
+                ...cell,
+
+                image: item.image,
+
+                clothingItemId:
+                  item.id,
+
+                file: null,
+
+                snapshotPath:
+                  null,
+              }
+            : cell
+      );
+    });
   }
 
   function handleImageUpload(
@@ -102,50 +89,35 @@ export default function OutfitGrid({
     }
 
     const imageUrl =
-      URL.createObjectURL(
-        file
-      );
+      URL.createObjectURL(file);
 
-    setCells(
-      (currentCells) =>
-        currentCells.map(
-          (cell) => {
-            if (
-              cell.id !== id
-            ) {
-              return cell;
-            }
+    setCells((currentCells) =>
+      currentCells.map((cell) => {
+        if (cell.id !== id) {
+          return cell;
+        }
 
-            if (
-              cell.file &&
-              cell.image
-            ) {
-              URL.revokeObjectURL(
-                cell.image
-              );
-            }
+        if (
+          cell.file &&
+          cell.image
+        ) {
+          URL.revokeObjectURL(
+            cell.image
+          );
+        }
 
-            return {
-              ...cell,
+        return {
+          ...cell,
 
-              image:
-                imageUrl,
+          image: imageUrl,
 
-              clothingItemId:
-                null,
+          clothingItemId: null,
 
-              file,
+          file,
 
-              /*
-               * This is now new content,
-               * so don't reuse the old
-               * board snapshot.
-               */
-              snapshotPath:
-                null,
-            };
-          }
-        )
+          snapshotPath: null,
+        };
+      })
     );
 
     event.target.value = '';
@@ -167,7 +139,9 @@ export default function OutfitGrid({
       return;
     }
 
-
+    /*
+     * CLOSET ITEM -> BOARD
+     */
     if (
       source.type ===
       'closet-item'
@@ -188,9 +162,7 @@ export default function OutfitGrid({
       }
 
       const sourceId =
-        String(
-          source.id
-        );
+        String(source.id);
 
       const prefix =
         'closet-item:';
@@ -219,50 +191,48 @@ export default function OutfitGrid({
         return;
       }
 
-      setCells(
-        (currentCells) =>
-          currentCells.map(
-            (cell) => {
-              if (
-                cell.id !==
-                target.id
-              ) {
-                return cell;
-              }
+      setCells((currentCells) =>
+        currentCells.map((cell) => {
+          if (
+            cell.id !==
+            target.id
+          ) {
+            return cell;
+          }
 
-              if (
-                cell.file &&
-                cell.image
-              ) {
-                URL.revokeObjectURL(
-                  cell.image
-                );
-              }
+          if (
+            cell.file &&
+            cell.image
+          ) {
+            URL.revokeObjectURL(
+              cell.image
+            );
+          }
 
-              return {
-                ...cell,
+          return {
+            ...cell,
 
-                image:
-                  closetItem.image,
+            image:
+              closetItem.image,
 
-                clothingItemId:
-                  closetItem.id,
+            clothingItemId:
+              closetItem.id,
 
-                file: null,
+            file: null,
 
-                snapshotPath:
-                  null,
-              };
-            }
-          )
+            snapshotPath:
+              null,
+          };
+        })
       );
 
       return;
     }
 
-    if (
-      !isSortable(source)
-    ) {
+    /*
+     * BOARD CELL -> BOARD CELL
+     */
+    if (!isSortable(source)) {
       return;
     }
 
@@ -272,33 +242,30 @@ export default function OutfitGrid({
     } = source;
 
     if (
-      initialIndex ===
-      index
+      initialIndex === index
     ) {
       return;
     }
 
-    setCells(
-      (currentCells) => {
-        const newCells = [
-          ...currentCells,
-        ];
+    setCells((currentCells) => {
+      const newCells = [
+        ...currentCells,
+      ];
 
-        const [movedCell] =
-          newCells.splice(
-            initialIndex,
-            1
-          );
-
+      const [movedCell] =
         newCells.splice(
-          index,
-          0,
-          movedCell
+          initialIndex,
+          1
         );
 
-        return newCells;
-      }
-    );
+      newCells.splice(
+        index,
+        0,
+        movedCell
+      );
+
+      return newCells;
+    });
   }
 
   return (
@@ -337,7 +304,7 @@ export default function OutfitGrid({
             : 'Add from Closet'}
         </button>
 
-        <div className="grid w-[min(90vw,75vh)] max-w-[600px] grid-cols-3 gap-2">
+        <div className="grid w-[min(90vw,75vh)] max-w-[600px] grid-cols-3 gap-2 bg-transparent">
           {cells.map(
             (
               cell,

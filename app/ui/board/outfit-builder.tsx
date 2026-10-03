@@ -29,6 +29,133 @@ function createInitialCells(): GridCell[] {
   );
 }
 
+/*
+ * Loads an image so it can be drawn
+ * onto the export canvas.
+ */
+async function loadCanvasImage(
+  imageUrl: string
+): Promise<HTMLImageElement> {
+  /*
+   * Fetch the image first and turn it
+   * into a local blob URL.
+   *
+   * This is especially useful for
+   * private Supabase signed URLs.
+   */
+  const response =
+    await fetch(imageUrl);
+
+  if (!response.ok) {
+    throw new Error(
+      'Could not load an image for export.'
+    );
+  }
+
+  const blob =
+    await response.blob();
+
+  const localUrl =
+    URL.createObjectURL(blob);
+
+  return new Promise(
+    (resolve, reject) => {
+      const image =
+        new Image();
+
+      image.onload = () => {
+        URL.revokeObjectURL(
+          localUrl
+        );
+
+        resolve(image);
+      };
+
+      image.onerror = () => {
+        URL.revokeObjectURL(
+          localUrl
+        );
+
+        reject(
+          new Error(
+            'Could not load image for export.'
+          )
+        );
+      };
+
+      image.src = localUrl;
+    }
+  );
+}
+
+/*
+ * Draws an image like CSS
+ * object-fit: cover.
+ */
+function drawImageCover(
+  context: CanvasRenderingContext2D,
+  image: HTMLImageElement,
+  x: number,
+  y: number,
+  width: number,
+  height: number
+) {
+  const imageRatio =
+    image.width / image.height;
+
+  const cellRatio =
+    width / height;
+
+  let sourceX = 0;
+  let sourceY = 0;
+  let sourceWidth =
+    image.width;
+  let sourceHeight =
+    image.height;
+
+  if (imageRatio > cellRatio) {
+    /*
+     * Image is wider than the cell.
+     * Crop the sides.
+     */
+    sourceWidth =
+      image.height *
+      cellRatio;
+
+    sourceX =
+      (image.width -
+        sourceWidth) /
+      2;
+  } else {
+    /*
+     * Image is taller than the cell.
+     * Crop the top and bottom.
+     */
+    sourceHeight =
+      image.width /
+      cellRatio;
+
+    sourceY =
+      (image.height -
+        sourceHeight) /
+      2;
+  }
+
+  context.drawImage(
+    image,
+
+    sourceX,
+    sourceY,
+    sourceWidth,
+    sourceHeight,
+
+    x,
+    y,
+    width,
+    height
+  );
+}
+
 export default function OutfitBuilder() {
   const [cells, setCells] =
     useState<GridCell[]>(
@@ -55,6 +182,11 @@ export default function OutfitBuilder() {
   const [
     isSaving,
     setIsSaving,
+  ] = useState(false);
+
+  const [
+    isExporting,
+    setIsExporting,
   ] = useState(false);
 
   useEffect(() => {
@@ -117,11 +249,15 @@ export default function OutfitBuilder() {
             item.position
           ] = {
             id: `cell-${item.position}`,
+
             image:
               item.image,
+
             clothingItemId:
               item.clothingItemId,
+
             file: null,
+
             snapshotPath:
               item.imagePath,
           };
@@ -190,6 +326,242 @@ export default function OutfitBuilder() {
       '',
       '/'
     );
+  }
+
+  async function handleExport() {
+    if (isExporting) {
+      return;
+    }
+
+    const hasItems =
+      cells.some(
+        (cell) =>
+          cell.image !== null
+      );
+
+    if (!hasItems) {
+      window.alert(
+        'Add at least one item before exporting your board.'
+      );
+
+      return;
+    }
+
+    setIsExporting(true);
+
+    try {
+      /*
+       * Export at 1800x1800 so the
+       * resulting PNG is high resolution.
+       */
+      const canvas =
+        document.createElement(
+          'canvas'
+        );
+
+      const canvasSize =
+        1800;
+
+      const gap = 16;
+
+      const cellSize =
+        (canvasSize -
+          gap * 2) /
+        3;
+
+      canvas.width =
+        canvasSize;
+
+      canvas.height =
+        canvasSize;
+
+      const context =
+        canvas.getContext(
+          '2d'
+        );
+
+      if (!context) {
+        throw new Error(
+          'Canvas is not supported.'
+        );
+      }
+
+      /*
+       * White board background.
+       */
+      context.fillStyle =
+        '#ffffff';
+
+      context.fillRect(
+        0,
+        0,
+        canvasSize,
+        canvasSize
+      );
+
+      for (
+        let index = 0;
+        index < cells.length;
+        index++
+      ) {
+        const cell =
+          cells[index];
+
+        const row =
+          Math.floor(
+            index / 3
+          );
+
+        const column =
+          index % 3;
+
+        const x =
+          column *
+          (cellSize + gap);
+
+        const y =
+          row *
+          (cellSize + gap);
+
+        /*
+         * Empty cell background.
+         */
+        context.fillStyle =
+          '#ffffff';
+
+        context.fillRect(
+          x,
+          y,
+          cellSize,
+          cellSize
+        );
+
+        if (cell.image) {
+          const image =
+            await loadCanvasImage(
+              cell.image
+            );
+
+          drawImageCover(
+            context,
+            image,
+            x,
+            y,
+            cellSize,
+            cellSize
+          );
+        }
+
+        /*
+         * Draw the black cell border
+         * from your actual board.
+         */
+        context.strokeStyle =
+          '#000000';
+
+        context.lineWidth =
+          3;
+
+        context.strokeRect(
+          x,
+          y,
+          cellSize,
+          cellSize
+        );
+      }
+
+      const blob =
+        await new Promise<Blob>(
+          (
+            resolve,
+            reject
+          ) => {
+            canvas.toBlob(
+              (result) => {
+                if (!result) {
+                  reject(
+                    new Error(
+                      'Could not create PNG.'
+                    )
+                  );
+
+                  return;
+                }
+
+                resolve(
+                  result
+                );
+              },
+              'image/png'
+            );
+          }
+        );
+
+      const downloadUrl =
+        URL.createObjectURL(
+          blob
+        );
+
+      const cleanName =
+        (
+          boardName ||
+          'fitinerary-board'
+        )
+          .trim()
+          .toLowerCase()
+          .replace(
+            /[^a-z0-9]+/g,
+            '-'
+          )
+          .replace(
+            /^-+|-+$/g,
+            ''
+          );
+
+      const link =
+        document.createElement(
+          'a'
+        );
+
+      link.href =
+        downloadUrl;
+
+      link.download =
+        `${
+          cleanName ||
+          'fitinerary-board'
+        }.png`;
+
+      document.body.appendChild(
+        link
+      );
+
+      link.click();
+
+      link.remove();
+
+      URL.revokeObjectURL(
+        downloadUrl
+      );
+    } catch (error) {
+      console.error(
+        'Export failed:',
+        error
+      );
+
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'Could not export the board image.';
+
+      window.alert(
+        message
+      );
+    } finally {
+      setIsExporting(
+        false
+      );
+    }
   }
 
   async function handleSave() {
@@ -307,14 +679,6 @@ export default function OutfitBuilder() {
           }
         );
 
-      /*
-       * Read as text first.
-       *
-       * This prevents:
-       * "Unexpected end of JSON input"
-       * when the server returns an
-       * empty response.
-       */
       const responseText =
         await response.text();
 
@@ -425,6 +789,9 @@ export default function OutfitBuilder() {
         onSave={
           handleSave
         }
+        onExport={
+          handleExport
+        }
       />
 
       {isSaving && (
@@ -432,6 +799,12 @@ export default function OutfitBuilder() {
           {editingBoardId
             ? 'Updating board...'
             : 'Saving board...'}
+        </p>
+      )}
+
+      {isExporting && (
+        <p className="text-sm text-gray-500">
+          Exporting image...
         </p>
       )}
     </div>
