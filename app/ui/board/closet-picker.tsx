@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useDraggable } from '@dnd-kit/react';
 
 import type { ClothingItem } from '@/app/lib/definitions';
 
@@ -10,6 +11,58 @@ type ClosetPickerProps = {
   onSelect: (item: ClothingItem) => void;
 };
 
+type DraggableClosetItemProps = {
+  item: ClothingItem;
+  onSelect: (item: ClothingItem) => void;
+};
+
+function DraggableClosetItem({
+  item,
+  onSelect,
+}: DraggableClosetItemProps) {
+  const { ref, isDragging } = useDraggable({
+    id: `closet-item:${item.id}`,
+    type: 'closet-item',
+  });
+
+  return (
+    <button
+      ref={ref}
+      type="button"
+      onClick={() => onSelect(item)}
+      className={`
+        overflow-hidden
+        rounded-lg
+        border
+        border-gray-200
+        bg-white
+        text-left
+        transition
+        hover:border-black
+        ${isDragging ? 'opacity-50' : ''}
+      `}
+    >
+      <div className="aspect-square overflow-hidden bg-gray-100">
+        <img
+          src={item.image}
+          alt={item.name}
+          className="h-full w-full object-cover"
+        />
+      </div>
+
+      <div className="p-2">
+        <p className="truncate text-sm font-medium">
+          {item.name}
+        </p>
+
+        <p className="truncate text-xs text-gray-500">
+          {item.category}
+        </p>
+      </div>
+    </button>
+  );
+}
+
 export default function ClosetPicker({
   clothes,
   categories,
@@ -18,7 +71,8 @@ export default function ClosetPicker({
   const [selectedCategory, setSelectedCategory] =
     useState('All');
 
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] =
+    useState('');
 
   const visibleClothes = clothes.filter((item) => {
     const matchesCategory =
@@ -33,7 +87,7 @@ export default function ClosetPicker({
   });
 
   return (
-    <div className="w-72 rounded-xl border border-gray-200 bg-white p-4 shadow-lg">
+    <div className="flex max-h-[calc(100vh-4rem)] w-72 flex-col rounded-xl border border-gray-200 bg-white p-4 shadow-lg">
       <h2 className="mb-4 text-xl font-semibold">
         Your Closet
       </h2>
@@ -69,38 +123,19 @@ export default function ClosetPicker({
         ))}
       </div>
 
-      {/* Clothing */}
+      {/* Clothes */}
       {visibleClothes.length === 0 ? (
         <p className="text-sm text-gray-500">
           No clothing found.
         </p>
       ) : (
-        <div className="grid max-h-[500px] grid-cols-2 gap-3 overflow-y-auto">
+        <div className="grid min-h-0 flex-1 grid-cols-2 gap-3 overflow-y-auto pr-1">
           {visibleClothes.map((item) => (
-            <button
+            <DraggableClosetItem
               key={item.id}
-              type="button"
-              onClick={() => onSelect(item)}
-              className="overflow-hidden rounded-lg border border-gray-200 bg-white text-left hover:border-black"
-            >
-              <div className="aspect-square overflow-hidden bg-gray-100">
-                <img
-                  src={item.image}
-                  alt={item.name}
-                  className="h-full w-full object-cover"
-                />
-              </div>
-
-              <div className="p-2">
-                <p className="truncate text-sm font-medium">
-                  {item.name}
-                </p>
-
-                <p className="truncate text-xs text-gray-500">
-                  {item.category}
-                </p>
-              </div>
-            </button>
+              item={item}
+              onSelect={onSelect}
+            />
           ))}
         </div>
       )}

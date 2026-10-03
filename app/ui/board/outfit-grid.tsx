@@ -15,6 +15,7 @@ import type { GridCell } from './outfit-builder';
 
 type OutfitGridProps = {
   cells: GridCell[];
+
   setCells: React.Dispatch<
     React.SetStateAction<GridCell[]>
   >;
@@ -29,11 +30,16 @@ export default function OutfitGrid({
   const [showCloset, setShowCloset] =
     useState(false);
 
+  /*
+   * CLICK FROM CLOSET
+   *
+   * Clicking an item fills the next available
+   * empty board cell.
+   */
   function handleAddFromCloset(
     item: ClothingItem
   ) {
     setCells((currentCells) => {
-      // Don't add the same closet item twice.
       const alreadyOnBoard =
         currentCells.some(
           (cell) =>
@@ -44,20 +50,16 @@ export default function OutfitGrid({
         return currentCells;
       }
 
-      // Find the first grid square
-      // that does not have an image.
       const firstEmptyIndex =
         currentCells.findIndex(
           (cell) => cell.image === null
         );
 
-      // All 9 cells are full.
+      // Board is full.
       if (firstEmptyIndex === -1) {
         return currentCells;
       }
 
-      // Put the selected closet item
-      // into the first empty cell.
       return currentCells.map(
         (cell, index) =>
           index === firstEmptyIndex
@@ -71,6 +73,12 @@ export default function OutfitGrid({
     });
   }
 
+  /*
+   * DIRECT IMAGE UPLOAD
+   *
+   * This lets the user upload or replace
+   * an image directly in a board cell.
+   */
   function handleImageUpload(
     event: React.ChangeEvent<HTMLInputElement>,
     id: string
@@ -91,86 +99,165 @@ export default function OutfitGrid({
               ...cell,
               image: imageUrl,
 
-              // This wasn't chosen from the Closet,
-              // so it doesn't have a closet item ID.
+              // Direct upload does not reference
+              // an existing Closet item.
               clothingItemId: null,
             }
           : cell
       )
     );
+
+    // Allows the same file to be selected again.
+    event.target.value = '';
+  }
+
+  /*
+   * DRAG END
+   *
+   * There are now two possible kinds of drag:
+   *
+   * closet item -> board cell
+   * board cell  -> board cell
+   */
+  function handleDragEnd(event: any) {
+    if (event.canceled) {
+      return;
+    }
+
+    const { source, target } =
+      event.operation;
+
+    if (!source) {
+      return;
+    }
+
+    /*
+     * CASE 1:
+     * CLOSET ITEM -> BOARD CELL
+     *
+     * Put the closet item directly into
+     * whichever cell it was dropped onto.
+     */
+    if (source.type === 'closet-item') {
+      if (!target) {
+        return;
+      }
+
+      const targetCellExists = cells.some(
+        (cell) => cell.id === target.id
+      );
+
+      if (!targetCellExists) {
+        return;
+      }
+
+      const sourceId = String(source.id);
+
+      const prefix = 'closet-item:';
+
+      if (!sourceId.startsWith(prefix)) {
+        return;
+      }
+
+      const clothingItemId =
+        sourceId.slice(prefix.length);
+
+      const closetItem = clothes.find(
+        (item) =>
+          item.id === clothingItemId
+      );
+
+      if (!closetItem) {
+        return;
+      }
+
+      setCells((currentCells) =>
+        currentCells.map((cell) =>
+          cell.id === target.id
+            ? {
+                ...cell,
+                image: closetItem.image,
+                clothingItemId:
+                  closetItem.id,
+              }
+            : cell
+        )
+      );
+
+      return;
+    }
+
+    /*
+     * CASE 2:
+     * BOARD CELL -> BOARD CELL
+     *
+     * Keep your existing sortable behavior.
+     */
+    if (!isSortable(source)) {
+      return;
+    }
+
+    const {
+      initialIndex,
+      index,
+    } = source;
+
+    if (initialIndex === index) {
+      return;
+    }
+
+    setCells((currentCells) => {
+      const newCells = [
+        ...currentCells,
+      ];
+
+      const [movedCell] =
+        newCells.splice(
+          initialIndex,
+          1
+        );
+
+      newCells.splice(
+        index,
+        0,
+        movedCell
+      );
+
+      return newCells;
+    });
   }
 
   return (
-  <>
-    {/* Closet panel - floats on left side of screen */}
-    {showCloset && (
-      <div className="fixed left-4 top-1/2 z-40 max-h-[calc(100vh-4rem)] -translate-y-1/2 overflow-hidden">
-        <ClosetPicker
-          clothes={clothes}
-          categories={categories}
-          onSelect={handleAddFromCloset}
-        />
-      </div>
-    )}
+    <DragDropProvider
+      onDragEnd={handleDragEnd}
+    >
+      {/* Fixed Closet panel */}
+      {showCloset && (
+        <div className="fixed left-4 top-1/2 z-40 max-h-[calc(100vh-4rem)] -translate-y-1/2 overflow-hidden">
+          <ClosetPicker
+            clothes={clothes}
+            categories={categories}
+            onSelect={handleAddFromCloset}
+          />
+        </div>
+      )}
 
-    {/* Board stays centered and does not move */}
-    <div className="flex flex-col items-center gap-4">
-      {/* Add from Closet button */}
-      <button
-        type="button"
-        onClick={() =>
-          setShowCloset((current) => !current)
-        }
-        className="rounded-lg bg-black px-4 py-2 font-medium text-white hover:bg-gray-800"
-      >
-        {showCloset
-          ? 'Close Closet'
-          : 'Add from Closet'}
-      </button>
-
-      {/* Drag-and-drop board */}
-      <DragDropProvider
-        onDragEnd={(event) => {
-          if (event.canceled) {
-            return;
+      {/* Board stays centered */}
+      <div className="flex flex-col items-center gap-4">
+        <button
+          type="button"
+          onClick={() =>
+            setShowCloset(
+              (current) => !current
+            )
           }
+          className="rounded-lg bg-black px-4 py-2 font-medium text-white hover:bg-gray-800"
+        >
+          {showCloset
+            ? 'Close Closet'
+            : 'Add from Closet'}
+        </button>
 
-          const { source } = event.operation;
-
-          if (!isSortable(source)) {
-            return;
-          }
-
-          const {
-            initialIndex,
-            index,
-          } = source;
-
-          if (initialIndex === index) {
-            return;
-          }
-
-          setCells((currentCells) => {
-            const newCells = [
-              ...currentCells,
-            ];
-
-            const [movedCell] =
-              newCells.splice(
-                initialIndex,
-                1
-              );
-
-            newCells.splice(
-              index,
-              0,
-              movedCell
-            );
-
-            return newCells;
-          });
-        }}
-      >
         <div className="grid w-[min(90vw,75vh)] max-w-[600px] grid-cols-3 gap-2">
           {cells.map(
             (cell, index) => (
@@ -186,8 +273,7 @@ export default function OutfitGrid({
             )
           )}
         </div>
-      </DragDropProvider>
-    </div>
-  </>
-);
+      </div>
+    </DragDropProvider>
+  );
 }

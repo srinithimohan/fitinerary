@@ -3,11 +3,11 @@
 import { useRef } from 'react';
 import { useSortable } from '@dnd-kit/react/sortable';
 
-
 type SortableGridCellProps = {
   id: string;
   index: number;
   image: string | null;
+
   onImageUpload: (
     event: React.ChangeEvent<HTMLInputElement>,
     id: string
@@ -20,13 +20,25 @@ export default function SortableGridCell({
   image,
   onImageUpload,
 }: SortableGridCellProps) {
-  const { ref, handleRef, isDragging } = useSortable({
+  const {
+    ref,
+    isDragging,
+    isDropTarget,
+  } = useSortable({
     id,
     index,
+
+    // This item itself is a board cell.
+    type: 'board-cell',
+
+    // Board cells accept:
+    // 1. other board cells for reordering
+    // 2. closet items for adding/replacing images
+    accept: ['board-cell', 'closet-item'],
   });
 
-  
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef =
+    useRef<HTMLInputElement>(null);
 
   function handleChooseImage() {
     fileInputRef.current?.click();
@@ -42,88 +54,54 @@ export default function SortableGridCell({
         items-center
         justify-center
         overflow-hidden
-        rounded-lg
         border
         border-black
         bg-white
+        transition
+        ${isDragging ? 'opacity-50' : ''}
+        ${
+          isDropTarget
+            ? 'ring-4 ring-black/30'
+            : ''
+        }
       `}
     >
       {image ? (
         <>
           <img
             src={image}
-            alt={`Clothing item ${index + 1}`}
+            alt="Outfit item"
             className="h-full w-full object-cover"
           />
 
-          {/* Replace image button */}
+          {/* Replace using upload */}
           <button
             type="button"
             onClick={handleChooseImage}
-            className="
-              absolute
-              bottom-2
-              left-1/2
-              -translate-x-1/2
-              rounded
-              bg-white
-              px-3
-              py-1
-              text-sm
-              shadow
-            "
+            className="absolute bottom-2 right-2 rounded-md bg-white/90 px-2 py-1 text-xs font-medium text-black shadow hover:bg-white"
           >
-            Replace Photo
+            Upload
           </button>
         </>
       ) : (
         <button
           type="button"
           onClick={handleChooseImage}
-          className="
-            flex
-            h-full
-            w-full
-            items-center
-            justify-center
-            text-lg
-            text-gray-500
-          "
+          className="flex h-full w-full items-center justify-center text-sm text-gray-500 hover:bg-gray-50"
         >
-          Add Image
+          + Add Photo
         </button>
       )}
 
-      {/* Hidden file picker */}
       <input
         ref={fileInputRef}
         type="file"
         accept="image/*"
+        onChange={(event) =>
+          onImageUpload(event, id)
+        }
         className="hidden"
-        onChange={(event) => onImageUpload(event, id)}
       />
-
-      {/* Drag handle */}
-      <button
-        ref={handleRef}
-        type="button"
-        className="
-          absolute
-          right-2
-          top-2
-          z-10
-          cursor-grab
-          rounded
-          bg-white
-          px-2
-          py-1
-          text-sm
-          shadow
-          active:cursor-grabbing
-        "
-        aria-label="Move clothing item"
-      >
-      </button>
     </div>
   );
 }
