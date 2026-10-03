@@ -244,20 +244,8 @@ export default function OutfitGrid({
 
       {/* Board stays centered */}
       <div className="flex flex-col items-center gap-4">
-        <button
-          type="button"
-          onClick={() =>
-            setShowCloset(
-              (current) => !current
-            )
-          }
-          className="rounded-lg bg-black px-4 py-2 font-medium text-white hover:bg-gray-800"
-        >
-          {showCloset
-            ? 'Close Closet'
-            : 'Add from Closet'}
-        </button>
 
+        {/* Board */}
         <div className="grid w-[min(90vw,75vh)] max-w-[600px] grid-cols-3 gap-2">
           {cells.map(
             (cell, index) => (
@@ -273,6 +261,22 @@ export default function OutfitGrid({
             )
           )}
         </div>
+
+        {/* Add from Closet button */}
+        <button
+          type="button"
+          onClick={() =>
+            setShowCloset(
+              (current) => !current
+            )
+          }
+          className="rounded-lg bg-black px-4 py-2 font-medium text-white hover:bg-gray-800"
+        >
+          {showCloset
+            ? 'Close Closet'
+            : 'Add from Closet'}
+        </button>
+
       </div>
     </DragDropProvider>
   );
