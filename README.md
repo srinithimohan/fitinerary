@@ -1,1 +1,1 @@
-## next.js app! currently under construction - come back soon!
+## next.js fashion app! currently under construction - come back soon!

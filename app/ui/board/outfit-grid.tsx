@@ -1,27 +1,20 @@
 'use client';
 
-import { useState } from 'react';
 import { DragDropProvider } from '@dnd-kit/react';
 import { isSortable } from '@dnd-kit/react/sortable';
 
 import SortableGridCell from './grid-cell';
+import type { GridCell } from './outfit-builder';
 
-type GridCell = {
-  id: string;
-  image: string | null;
+type OutfitGridProps = {
+  cells: GridCell[];
+  setCells: React.Dispatch<React.SetStateAction<GridCell[]>>;
 };
 
-const initialCells: GridCell[] = Array.from(
-  { length: 9 },
-  (_, index) => ({
-    id: `cell-${index}`,
-    image: null,
-  })
-);
-
-export default function OutfitGrid() {
-  const [cells, setCells] = useState<GridCell[]>(initialCells);
-
+export default function OutfitGrid({
+  cells,
+  setCells,
+}: OutfitGridProps) {
   function handleImageUpload(
     event: React.ChangeEvent<HTMLInputElement>,
     id: string
@@ -57,7 +50,10 @@ export default function OutfitGrid() {
         setCells((currentCells) => {
           const newCells = [...currentCells];
 
-          const [movedCell] = newCells.splice(initialIndex, 1);
+          const [movedCell] = newCells.splice(
+            initialIndex,
+            1
+          );
 
           newCells.splice(index, 0, movedCell);
 
