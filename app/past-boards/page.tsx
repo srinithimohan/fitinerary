@@ -174,7 +174,7 @@ export default function PastBoardsPage() {
     );
 
   return (
-    <main className="mx-auto max-w-6xl px-6 py-10">
+    <main className="mx-auto max-w-6xl py-10 pl-6 pr-36">
       <div className="mb-8">
         <h1 className="text-3xl font-bold">
           Past Boards

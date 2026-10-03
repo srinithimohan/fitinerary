@@ -429,7 +429,7 @@ export default function Closet() {
     });
 
   return (
-    <main className="mx-auto max-w-6xl px-6 py-10">
+    <main className="mx-auto max-w-6xl py-10 pl-6 pr-36">
       <div className="mb-8 flex items-center justify-between">
         <h1 className="text-3xl font-bold">
           My Closet
