@@ -24,3 +24,20 @@ export type GridCell = {
   image: string | null;
   clothingItemId: string | null;
 };
+
+export type SavedBoardItem = {
+  id: string;
+  position: number;
+  clothingItemId: string | null;
+  name: string | null;
+  category: string | null;
+  image: string;
+};
+
+export type SavedBoard = {
+  id: string;
+  name: string;
+  isPublic: boolean;
+  createdAt: string;
+  items: SavedBoardItem[];
+};

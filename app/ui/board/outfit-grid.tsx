@@ -25,7 +25,8 @@ export default function OutfitGrid({
   cells,
   setCells,
 }: OutfitGridProps) {
-  const { clothes, categories } = useCloset();
+  const { clothes, categories } =
+    useCloset();
 
   const [showCloset, setShowCloset] =
     useState(false);
@@ -33,8 +34,8 @@ export default function OutfitGrid({
   /*
    * CLICK FROM CLOSET
    *
-   * Clicking an item fills the next available
-   * empty board cell.
+   * Clicking an item fills the next
+   * available empty board cell.
    */
   function handleAddFromCloset(
     item: ClothingItem
@@ -43,7 +44,8 @@ export default function OutfitGrid({
       const alreadyOnBoard =
         currentCells.some(
           (cell) =>
-            cell.clothingItemId === item.id
+            cell.clothingItemId ===
+            item.id
         );
 
       if (alreadyOnBoard) {
@@ -52,10 +54,10 @@ export default function OutfitGrid({
 
       const firstEmptyIndex =
         currentCells.findIndex(
-          (cell) => cell.image === null
+          (cell) =>
+            cell.image === null
         );
 
-      // Board is full.
       if (firstEmptyIndex === -1) {
         return currentCells;
       }
@@ -66,7 +68,9 @@ export default function OutfitGrid({
             ? {
                 ...cell,
                 image: item.image,
-                clothingItemId: item.id,
+                clothingItemId:
+                  item.id,
+                file: null,
               }
             : cell
       );
@@ -76,14 +80,18 @@ export default function OutfitGrid({
   /*
    * DIRECT IMAGE UPLOAD
    *
-   * This lets the user upload or replace
-   * an image directly in a board cell.
+   * Keep both:
+   *
+   * image -> browser preview
+   * file  -> actual file used when
+   *          saving the board
    */
   function handleImageUpload(
     event: React.ChangeEvent<HTMLInputElement>,
     id: string
   ) {
-    const file = event.target.files?.[0];
+    const file =
+      event.target.files?.[0];
 
     if (!file) {
       return;
@@ -93,32 +101,37 @@ export default function OutfitGrid({
       URL.createObjectURL(file);
 
     setCells((currentCells) =>
-      currentCells.map((cell) =>
-        cell.id === id
-          ? {
-              ...cell,
-              image: imageUrl,
+      currentCells.map((cell) => {
+        if (cell.id !== id) {
+          return cell;
+        }
 
-              // Direct upload does not reference
-              // an existing Closet item.
-              clothingItemId: null,
-            }
-          : cell
-      )
+        /*
+         * If this cell already contained
+         * another direct upload, clean
+         * up its temporary URL.
+         */
+        if (
+          cell.file &&
+          cell.image
+        ) {
+          URL.revokeObjectURL(
+            cell.image
+          );
+        }
+
+        return {
+          ...cell,
+          image: imageUrl,
+          clothingItemId: null,
+          file,
+        };
+      })
     );
 
-    // Allows the same file to be selected again.
     event.target.value = '';
   }
 
-  /*
-   * DRAG END
-   *
-   * There are now two possible kinds of drag:
-   *
-   * closet item -> board cell
-   * board cell  -> board cell
-   */
   function handleDragEnd(event: any) {
     if (event.canceled) {
       return;
@@ -134,54 +147,90 @@ export default function OutfitGrid({
     /*
      * CASE 1:
      * CLOSET ITEM -> BOARD CELL
-     *
-     * Put the closet item directly into
-     * whichever cell it was dropped onto.
      */
-    if (source.type === 'closet-item') {
+    if (
+      source.type ===
+      'closet-item'
+    ) {
       if (!target) {
         return;
       }
 
-      const targetCellExists = cells.some(
-        (cell) => cell.id === target.id
-      );
+      const targetCellExists =
+        cells.some(
+          (cell) =>
+            cell.id === target.id
+        );
 
       if (!targetCellExists) {
         return;
       }
 
-      const sourceId = String(source.id);
+      const sourceId =
+        String(source.id);
 
-      const prefix = 'closet-item:';
+      const prefix =
+        'closet-item:';
 
-      if (!sourceId.startsWith(prefix)) {
+      if (
+        !sourceId.startsWith(
+          prefix
+        )
+      ) {
         return;
       }
 
       const clothingItemId =
-        sourceId.slice(prefix.length);
+        sourceId.slice(
+          prefix.length
+        );
 
-      const closetItem = clothes.find(
-        (item) =>
-          item.id === clothingItemId
-      );
+      const closetItem =
+        clothes.find(
+          (item) =>
+            item.id ===
+            clothingItemId
+        );
 
       if (!closetItem) {
         return;
       }
 
-      setCells((currentCells) =>
-        currentCells.map((cell) =>
-          cell.id === target.id
-            ? {
+      setCells(
+        (currentCells) =>
+          currentCells.map(
+            (cell) => {
+              if (
+                cell.id !==
+                target.id
+              ) {
+                return cell;
+              }
+
+              /*
+               * If replacing a direct
+               * upload, clean up its
+               * temporary preview URL.
+               */
+              if (
+                cell.file &&
+                cell.image
+              ) {
+                URL.revokeObjectURL(
+                  cell.image
+                );
+              }
+
+              return {
                 ...cell,
-                image: closetItem.image,
+                image:
+                  closetItem.image,
                 clothingItemId:
                   closetItem.id,
-              }
-            : cell
-        )
+                file: null,
+              };
+            }
+          )
       );
 
       return;
@@ -190,8 +239,6 @@ export default function OutfitGrid({
     /*
      * CASE 2:
      * BOARD CELL -> BOARD CELL
-     *
-     * Keep your existing sortable behavior.
      */
     if (!isSortable(source)) {
       return;
@@ -202,7 +249,9 @@ export default function OutfitGrid({
       index,
     } = source;
 
-    if (initialIndex === index) {
+    if (
+      initialIndex === index
+    ) {
       return;
     }
 
@@ -231,43 +280,27 @@ export default function OutfitGrid({
     <DragDropProvider
       onDragEnd={handleDragEnd}
     >
-      {/* Fixed Closet panel */}
       {showCloset && (
         <div className="fixed left-4 top-1/2 z-40 max-h-[calc(100vh-4rem)] -translate-y-1/2 overflow-hidden">
           <ClosetPicker
             clothes={clothes}
-            categories={categories}
-            onSelect={handleAddFromCloset}
+            categories={
+              categories
+            }
+            onSelect={
+              handleAddFromCloset
+            }
           />
         </div>
       )}
 
-      {/* Board stays centered */}
       <div className="flex flex-col items-center gap-4">
-
-        {/* Board */}
-        <div className="grid w-[min(90vw,75vh)] max-w-[600px] grid-cols-3 gap-2">
-          {cells.map(
-            (cell, index) => (
-              <SortableGridCell
-                key={cell.id}
-                id={cell.id}
-                index={index}
-                image={cell.image}
-                onImageUpload={
-                  handleImageUpload
-                }
-              />
-            )
-          )}
-        </div>
-
-        {/* Add from Closet button */}
         <button
           type="button"
           onClick={() =>
             setShowCloset(
-              (current) => !current
+              (current) =>
+                !current
             )
           }
           className="rounded-lg bg-black px-4 py-2 font-medium text-white hover:bg-gray-800"
@@ -277,6 +310,23 @@ export default function OutfitGrid({
             : 'Add from Closet'}
         </button>
 
+        <div className="grid w-[min(90vw,75vh)] max-w-[600px] grid-cols-3 gap-2">
+          {cells.map(
+            (cell, index) => (
+              <SortableGridCell
+                key={cell.id}
+                id={cell.id}
+                index={index}
+                image={
+                  cell.image
+                }
+                onImageUpload={
+                  handleImageUpload
+                }
+              />
+            )
+          )}
+        </div>
       </div>
     </DragDropProvider>
   );
