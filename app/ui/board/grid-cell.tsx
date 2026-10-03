@@ -4,7 +4,6 @@ import { useRef } from 'react';
 import { useSortable } from '@dnd-kit/react/sortable';
 
 
-
 type SortableGridCellProps = {
   id: string;
   index: number;

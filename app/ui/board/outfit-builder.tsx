@@ -8,42 +8,41 @@ import BoardActions from './board-actions';
 export type GridCell = {
   id: string;
   image: string | null;
+  clothingItemId: string | null;
 };
 
-const initialCells: GridCell[] = Array.from(
-  { length: 9 },
-  (_, index) => ({
+function createInitialCells(): GridCell[] {
+  return Array.from({ length: 9 }, (_, index) => ({
     id: `cell-${index}`,
     image: null,
-  })
-);
+    clothingItemId: null,
+  }));
+}
 
 export default function OutfitBuilder() {
-  const [cells, setCells] = useState<GridCell[]>(initialCells);
+  const [cells, setCells] = useState<GridCell[]>(
+    createInitialCells()
+  );
 
-  function handleClearBoard() {
-    setCells(initialCells);
+  function handleClear() {
+    setCells(createInitialCells());
   }
 
-  function handleSaveBoard() {
+  function handleSave() {
     console.log('Saving board:', cells);
-
-    // Later:
-    // call a Server Action here
-    // and save the board to PostgreSQL
   }
 
   return (
-    <section className="flex flex-col items-center gap-4 py-4">
+    <div className="flex flex-col items-center gap-4 py-4">
       <OutfitGrid
         cells={cells}
         setCells={setCells}
       />
 
       <BoardActions
-        onClear={handleClearBoard}
-        onSave={handleSaveBoard}
+        onClear={handleClear}
+        onSave={handleSave}
       />
-    </section>
+    </div>
   );
 }

@@ -1,5 +1,6 @@
 import './ui/global.css';
 import Navbar from './ui/navbar';
+import { ClosetProvider } from './context/closet-context';
 
 export default function RootLayout({
   children,
@@ -9,9 +10,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
+        <ClosetProvider>
         <Navbar />
 
-        {children} {/* the content inside each page passed */}
+        {children} 
+        </ClosetProvider>
       </body>
     </html>
   );

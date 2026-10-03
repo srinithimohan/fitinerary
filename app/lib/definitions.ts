@@ -17,3 +17,9 @@ export type BoardSlot = {
   position: number;
   clothingItemId: string | null;
 };
+
+export type GridCell = {
+  id: string;
+  image: string | null;
+  clothingItemId: string | null;
+};

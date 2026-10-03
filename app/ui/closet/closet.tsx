@@ -3,26 +3,23 @@
 import { useState } from 'react';
 
 import type { ClothingItem } from '@/app/lib/definitions';
+import { useCloset } from '@/app/context/closet-context';
 
 import AddClothingButton from './add-clothing-button';
 import AddClothingModal from './add-clothing-modal';
 import ClothingCard from './clothing-card';
 import EditClothingModal from './edit-clothing-modal';
 
-export default function Closet() {
-  const [clothes, setClothes] = useState<ClothingItem[]>(
-    []
-  );
 
-  const [categories, setCategories] = useState<string[]>(
-    [
-      'All',
-      'Tops',
-      'Bottoms',
-      'Layers',
-      'Shoes',
-    ]
-  );
+export default function Closet() {
+  const {
+  clothes,
+  setClothes,
+  categories,
+  setCategories,
+} = useCloset();
+
+
 
   const [pendingImage, setPendingImage] = useState<
     string | null
