@@ -1,6 +1,9 @@
 'use client';
 
+import { useRef } from 'react';
 import { useSortable } from '@dnd-kit/react/sortable';
+
+
 
 type SortableGridCellProps = {
   id: string;
@@ -23,6 +26,13 @@ export default function SortableGridCell({
     index,
   });
 
+  
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  function handleChooseImage() {
+    fileInputRef.current?.click();
+  }
+
   return (
     <div
       ref={ref}
@@ -33,35 +43,68 @@ export default function SortableGridCell({
         items-center
         justify-center
         overflow-hidden
-        border-b
-        border-r
+        rounded-lg
+        border
         border-black
-        ${isDragging ? 'opacity-50' : ''}
+        bg-white
       `}
     >
-      <label className="flex h-full w-full cursor-pointer items-center justify-center">
-        {image ? (
+      {image ? (
+        <>
           <img
             src={image}
             alt={`Clothing item ${index + 1}`}
             className="h-full w-full object-cover"
           />
-        ) : (
-          <span className="text-lg text-gray-500">
-            Upload
-          </span>
-        )}
 
-        <input
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={(event) =>
-            onImageUpload(event, id)
-          }
-        />
-      </label>
+          {/* Replace image button */}
+          <button
+            type="button"
+            onClick={handleChooseImage}
+            className="
+              absolute
+              bottom-2
+              left-1/2
+              -translate-x-1/2
+              rounded
+              bg-white
+              px-3
+              py-1
+              text-sm
+              shadow
+            "
+          >
+            Replace Photo
+          </button>
+        </>
+      ) : (
+        <button
+          type="button"
+          onClick={handleChooseImage}
+          className="
+            flex
+            h-full
+            w-full
+            items-center
+            justify-center
+            text-lg
+            text-gray-500
+          "
+        >
+          Add Image
+        </button>
+      )}
 
+      {/* Hidden file picker */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(event) => onImageUpload(event, id)}
+      />
+
+      {/* Drag handle */}
       <button
         ref={handleRef}
         type="button"
@@ -81,7 +124,6 @@ export default function SortableGridCell({
         "
         aria-label="Move clothing item"
       >
-        ⋮⋮
       </button>
     </div>
   );

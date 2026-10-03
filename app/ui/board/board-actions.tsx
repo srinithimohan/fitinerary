@@ -40,6 +40,23 @@ export default function BoardActions({
       >
         Clear Board
       </button>
+
+        <button
+        type="button"
+        onClick={onClear}
+        className="
+          rounded-md
+          bg-red
+          border
+          border-black
+          px-4
+          py-2
+          hover:bg-pink-100
+        "
+      >
+        Export Board
+      </button>
+
     </div>
   );
 }

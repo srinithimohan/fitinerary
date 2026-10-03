@@ -61,17 +61,17 @@ export default function OutfitGrid({
         });
       }}
     >
-      <div className="mt-8 grid w-[600px] grid-cols-3 border-l border-t border-black">
+      <div className="mt-8 grid w-[600px] grid-cols-3 gap-2">
         {cells.map((cell, index) => (
-          <SortableGridCell
+            <SortableGridCell
             key={cell.id}
             id={cell.id}
             index={index}
             image={cell.image}
             onImageUpload={handleImageUpload}
-          />
+            />
         ))}
-      </div>
+</div>
     </DragDropProvider>
   );
 }
