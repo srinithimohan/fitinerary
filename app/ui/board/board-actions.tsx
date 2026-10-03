@@ -10,7 +10,7 @@ export default function BoardActions({
   onSave,
 }: BoardActionsProps) {
   return (
-    <div className="mt-6 flex gap-4">
+    <div className="flex gap-4">
       <button
         type="button"
         onClick={onSave}

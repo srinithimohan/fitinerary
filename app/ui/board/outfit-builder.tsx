@@ -34,7 +34,7 @@ export default function OutfitBuilder() {
   }
 
   return (
-    <section className="flex flex-col items-center">
+    <section className="flex flex-col items-center gap-4 py-4">
       <OutfitGrid
         cells={cells}
         setCells={setCells}

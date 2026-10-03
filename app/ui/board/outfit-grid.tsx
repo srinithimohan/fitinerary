@@ -61,7 +61,7 @@ export default function OutfitGrid({
         });
       }}
     >
-      <div className="mt-8 grid w-[600px] grid-cols-3 gap-2">
+      <div className="grid w-[min(90vw,75vh)] max-w-[600px] grid-cols-3 gap-2">
         {cells.map((cell, index) => (
             <SortableGridCell
             key={cell.id}
