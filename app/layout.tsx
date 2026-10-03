@@ -1,3 +1,4 @@
+import { ClerkProvider } from '@clerk/nextjs';
 import './ui/global.css';
 import Navbar from './ui/navbar';
 import { ClosetProvider } from './context/closet-context';
@@ -10,11 +11,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <ClosetProvider>
-        <Navbar />
+        <ClerkProvider>
+          <ClosetProvider>
+          <Navbar />
 
-        {children} 
-        </ClosetProvider>
+          {children} 
+          </ClosetProvider>
+        </ClerkProvider>
       </body>
     </html>
   );
