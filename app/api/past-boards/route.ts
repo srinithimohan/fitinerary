@@ -18,14 +18,6 @@ export async function GET() {
   const supabase =
     createServerSupabaseClient();
 
-  /*
-   * Get the user's boards AND the
-   * board_items that belong to them.
-   *
-   * Supabase understands this relationship
-   * because board_items.board_id references
-   * boards.id.
-   */
   const {
     data: boards,
     error: boardsError,
@@ -50,11 +42,6 @@ export async function GET() {
     });
 
   if (boardsError) {
-    console.error(
-      'Could not load boards:',
-      boardsError.message
-    );
-
     return NextResponse.json(
       {
         error: `Could not load boards: ${boardsError.message}`,
@@ -89,7 +76,6 @@ export async function GET() {
                   signedUrlError
                 ) {
                   console.error(
-                    'Could not create board image URL:',
                     signedUrlError.message
                   );
                 }
@@ -109,6 +95,9 @@ export async function GET() {
                   category:
                     item.category_snapshot,
 
+                  imagePath:
+                    item.image_path_snapshot,
+
                   image:
                     signedUrlData?.signedUrl ??
                     '',
@@ -117,10 +106,6 @@ export async function GET() {
             )
           );
 
-        /*
-         * Make sure positions are
-         * always in grid order.
-         */
         items.sort(
           (a, b) =>
             a.position -
@@ -129,15 +114,11 @@ export async function GET() {
 
         return {
           id: board.id,
-
           name: board.name,
-
           isPublic:
             board.is_public,
-
           createdAt:
             board.created_at,
-
           items,
         };
       })

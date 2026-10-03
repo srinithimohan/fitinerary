@@ -31,61 +31,65 @@ export default function OutfitGrid({
   const [showCloset, setShowCloset] =
     useState(false);
 
-  /*
-   * CLICK FROM CLOSET
-   *
-   * Clicking an item fills the next
-   * available empty board cell.
-   */
   function handleAddFromCloset(
     item: ClothingItem
   ) {
-    setCells((currentCells) => {
-      const alreadyOnBoard =
-        currentCells.some(
-          (cell) =>
-            cell.clothingItemId ===
-            item.id
+    setCells(
+      (currentCells) => {
+        const alreadyOnBoard =
+          currentCells.some(
+            (cell) =>
+              cell.clothingItemId ===
+              item.id
+          );
+
+        if (
+          alreadyOnBoard
+        ) {
+          return currentCells;
+        }
+
+        const firstEmptyIndex =
+          currentCells.findIndex(
+            (cell) =>
+              cell.image ===
+              null
+          );
+
+        if (
+          firstEmptyIndex ===
+          -1
+        ) {
+          return currentCells;
+        }
+
+        return currentCells.map(
+          (
+            cell,
+            index
+          ) =>
+            index ===
+            firstEmptyIndex
+              ? {
+                  ...cell,
+
+                  image:
+                    item.image,
+
+                  clothingItemId:
+                    item.id,
+
+                  file: null,
+
+                  snapshotPath:
+                    null,
+                }
+              : cell
         );
-
-      if (alreadyOnBoard) {
-        return currentCells;
       }
-
-      const firstEmptyIndex =
-        currentCells.findIndex(
-          (cell) =>
-            cell.image === null
-        );
-
-      if (firstEmptyIndex === -1) {
-        return currentCells;
-      }
-
-      return currentCells.map(
-        (cell, index) =>
-          index === firstEmptyIndex
-            ? {
-                ...cell,
-                image: item.image,
-                clothingItemId:
-                  item.id,
-                file: null,
-              }
-            : cell
-      );
-    });
+    );
   }
 
-  /*
-   * DIRECT IMAGE UPLOAD
-   *
-   * Keep both:
-   *
-   * image -> browser preview
-   * file  -> actual file used when
-   *          saving the board
-   */
   function handleImageUpload(
     event: React.ChangeEvent<HTMLInputElement>,
     id: string
@@ -98,56 +102,72 @@ export default function OutfitGrid({
     }
 
     const imageUrl =
-      URL.createObjectURL(file);
+      URL.createObjectURL(
+        file
+      );
 
-    setCells((currentCells) =>
-      currentCells.map((cell) => {
-        if (cell.id !== id) {
-          return cell;
-        }
+    setCells(
+      (currentCells) =>
+        currentCells.map(
+          (cell) => {
+            if (
+              cell.id !== id
+            ) {
+              return cell;
+            }
 
-        /*
-         * If this cell already contained
-         * another direct upload, clean
-         * up its temporary URL.
-         */
-        if (
-          cell.file &&
-          cell.image
-        ) {
-          URL.revokeObjectURL(
-            cell.image
-          );
-        }
+            if (
+              cell.file &&
+              cell.image
+            ) {
+              URL.revokeObjectURL(
+                cell.image
+              );
+            }
 
-        return {
-          ...cell,
-          image: imageUrl,
-          clothingItemId: null,
-          file,
-        };
-      })
+            return {
+              ...cell,
+
+              image:
+                imageUrl,
+
+              clothingItemId:
+                null,
+
+              file,
+
+              /*
+               * This is now new content,
+               * so don't reuse the old
+               * board snapshot.
+               */
+              snapshotPath:
+                null,
+            };
+          }
+        )
     );
 
     event.target.value = '';
   }
 
-  function handleDragEnd(event: any) {
+  function handleDragEnd(
+    event: any
+  ) {
     if (event.canceled) {
       return;
     }
 
-    const { source, target } =
-      event.operation;
+    const {
+      source,
+      target,
+    } = event.operation;
 
     if (!source) {
       return;
     }
 
-    /*
-     * CASE 1:
-     * CLOSET ITEM -> BOARD CELL
-     */
+
     if (
       source.type ===
       'closet-item'
@@ -156,18 +176,21 @@ export default function OutfitGrid({
         return;
       }
 
-      const targetCellExists =
+      const targetExists =
         cells.some(
           (cell) =>
-            cell.id === target.id
+            cell.id ===
+            target.id
         );
 
-      if (!targetCellExists) {
+      if (!targetExists) {
         return;
       }
 
       const sourceId =
-        String(source.id);
+        String(
+          source.id
+        );
 
       const prefix =
         'closet-item:';
@@ -207,11 +230,6 @@ export default function OutfitGrid({
                 return cell;
               }
 
-              /*
-               * If replacing a direct
-               * upload, clean up its
-               * temporary preview URL.
-               */
               if (
                 cell.file &&
                 cell.image
@@ -223,11 +241,17 @@ export default function OutfitGrid({
 
               return {
                 ...cell,
+
                 image:
                   closetItem.image,
+
                 clothingItemId:
                   closetItem.id,
+
                 file: null,
+
+                snapshotPath:
+                  null,
               };
             }
           )
@@ -236,11 +260,9 @@ export default function OutfitGrid({
       return;
     }
 
-    /*
-     * CASE 2:
-     * BOARD CELL -> BOARD CELL
-     */
-    if (!isSortable(source)) {
+    if (
+      !isSortable(source)
+    ) {
       return;
     }
 
@@ -250,35 +272,40 @@ export default function OutfitGrid({
     } = source;
 
     if (
-      initialIndex === index
+      initialIndex ===
+      index
     ) {
       return;
     }
 
-    setCells((currentCells) => {
-      const newCells = [
-        ...currentCells,
-      ];
+    setCells(
+      (currentCells) => {
+        const newCells = [
+          ...currentCells,
+        ];
 
-      const [movedCell] =
+        const [movedCell] =
+          newCells.splice(
+            initialIndex,
+            1
+          );
+
         newCells.splice(
-          initialIndex,
-          1
+          index,
+          0,
+          movedCell
         );
 
-      newCells.splice(
-        index,
-        0,
-        movedCell
-      );
-
-      return newCells;
-    });
+        return newCells;
+      }
+    );
   }
 
   return (
     <DragDropProvider
-      onDragEnd={handleDragEnd}
+      onDragEnd={
+        handleDragEnd
+      }
     >
       {showCloset && (
         <div className="fixed left-4 top-1/2 z-40 max-h-[calc(100vh-4rem)] -translate-y-1/2 overflow-hidden">
@@ -312,11 +339,20 @@ export default function OutfitGrid({
 
         <div className="grid w-[min(90vw,75vh)] max-w-[600px] grid-cols-3 gap-2">
           {cells.map(
-            (cell, index) => (
+            (
+              cell,
+              index
+            ) => (
               <SortableGridCell
-                key={cell.id}
-                id={cell.id}
-                index={index}
+                key={
+                  cell.id
+                }
+                id={
+                  cell.id
+                }
+                index={
+                  index
+                }
                 image={
                   cell.image
                 }

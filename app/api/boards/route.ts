@@ -7,6 +7,7 @@ type IncomingBoardItem = {
   position: number;
   clothingItemId: string | null;
   hasUpload: boolean;
+  snapshotPath: string | null;
 };
 
 export async function POST(
@@ -31,7 +32,6 @@ export async function POST(
 
   const uploadedPaths: string[] =
     [];
-
 
   async function cleanup() {
     if (
@@ -62,8 +62,7 @@ export async function POST(
 
     if (
       typeof name !== 'string' ||
-      typeof itemsRaw !==
-        'string'
+      typeof itemsRaw !== 'string'
     ) {
       return NextResponse.json(
         {
@@ -146,6 +145,9 @@ export async function POST(
       );
     }
 
+    /*
+     * Create board row.
+     */
     const {
       data: board,
       error: boardError,
@@ -175,14 +177,19 @@ export async function POST(
 
     const boardItems = [];
 
+    /*
+     * Save each occupied cell.
+     */
     for (const item of items) {
+      /*
+       * CLOSET ITEM
+       */
       if (
         item.clothingItemId
       ) {
         const {
           data: clothing,
-          error:
-            clothingError,
+          error: clothingError,
         } = await supabase
           .from(
             'clothing_items'
@@ -247,8 +254,10 @@ export async function POST(
 
         boardItems.push({
           board_id: board.id,
+
           position:
             item.position,
+
           clothing_item_id:
             clothing.id,
 
@@ -265,6 +274,9 @@ export async function POST(
         continue;
       }
 
+      /*
+       * DIRECT BOARD UPLOAD
+       */
       if (item.hasUpload) {
         const file =
           formData.get(
@@ -323,7 +335,6 @@ export async function POST(
             {
               contentType:
                 file.type,
-
               upsert: false,
             }
           );
@@ -345,6 +356,7 @@ export async function POST(
 
         boardItems.push({
           board_id: board.id,
+
           position:
             item.position,
 
@@ -354,7 +366,9 @@ export async function POST(
           image_path_snapshot:
             snapshotPath,
 
-          name_snapshot: null,
+          name_snapshot:
+            null,
+
           category_snapshot:
             null,
         });
@@ -362,8 +376,7 @@ export async function POST(
     }
 
     const {
-      error:
-        boardItemsError,
+      error: boardItemsError,
     } = await supabase
       .from('board_items')
       .insert(boardItems);

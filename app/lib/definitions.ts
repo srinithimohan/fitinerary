@@ -31,7 +31,10 @@ export type SavedBoardItem = {
   clothingItemId: string | null;
   name: string | null;
   category: string | null;
+
   image: string;
+
+  imagePath: string;
 };
 
 export type SavedBoard = {

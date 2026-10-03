@@ -5,12 +5,17 @@ import {
   useState,
 } from 'react';
 
+import { useRouter } from 'next/navigation';
+
 import type {
   SavedBoard,
   SavedBoardItem,
 } from '@/app/lib/definitions';
 
 export default function PastBoardsPage() {
+  const router =
+    useRouter();
+
   const [
     boards,
     setBoards,
@@ -85,6 +90,16 @@ export default function PastBoardsPage() {
     loadBoards();
   }, []);
 
+  function handleEditBoard(
+    board: SavedBoard
+  ) {
+    router.push(
+      `/?boardId=${encodeURIComponent(
+        board.id
+      )}`
+    );
+  }
+
   async function handleDeleteBoard(
     board: SavedBoard
   ) {
@@ -105,7 +120,8 @@ export default function PastBoardsPage() {
         await fetch(
           `/api/boards/${board.id}`,
           {
-            method: 'DELETE',
+            method:
+              'DELETE',
           }
         );
 
@@ -132,7 +148,9 @@ export default function PastBoardsPage() {
           )
       );
 
-      setSelectedBoard(null);
+      setSelectedBoard(
+        null
+      );
     } catch (error) {
       const message =
         error instanceof Error
@@ -146,12 +164,13 @@ export default function PastBoardsPage() {
   }
 
   const visibleBoards =
-    boards.filter((board) =>
-      board.name
-        .toLowerCase()
-        .includes(
-          searchTerm.toLowerCase()
-        )
+    boards.filter(
+      (board) =>
+        board.name
+          .toLowerCase()
+          .includes(
+            searchTerm.toLowerCase()
+          )
     );
 
   return (
@@ -167,7 +186,6 @@ export default function PastBoardsPage() {
         </p>
       </div>
 
-      {/* Search */}
       <input
         type="text"
         value={searchTerm}
@@ -180,14 +198,12 @@ export default function PastBoardsPage() {
         className="mb-8 w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-black"
       />
 
-      {/* Error */}
       {error && (
         <div className="mb-6 rounded-lg border border-red-300 bg-red-50 p-4 text-sm text-red-700">
           {error}
         </div>
       )}
 
-      {/* Boards */}
       {isLoading ? (
         <div className="flex min-h-64 items-center justify-center">
           <p className="text-gray-500">
@@ -208,7 +224,9 @@ export default function PastBoardsPage() {
           {visibleBoards.map(
             (board) => (
               <button
-                key={board.id}
+                key={
+                  board.id
+                }
                 type="button"
                 onClick={() =>
                   setSelectedBoard(
@@ -218,12 +236,16 @@ export default function PastBoardsPage() {
                 className="overflow-hidden rounded-xl border border-gray-200 bg-white text-left shadow-sm transition hover:-translate-y-1 hover:shadow-md"
               >
                 <BoardGrid
-                  board={board}
+                  board={
+                    board
+                  }
                 />
 
                 <div className="p-4">
                   <h2 className="font-semibold">
-                    {board.name}
+                    {
+                      board.name
+                    }
                   </h2>
 
                   <p className="mt-1 text-sm text-gray-500">
@@ -238,21 +260,23 @@ export default function PastBoardsPage() {
         </div>
       )}
 
-      {/* Enlarged board modal */}
       {selectedBoard && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-6"
           onClick={() =>
-            setSelectedBoard(null)
+            setSelectedBoard(
+              null
+            )
           }
         >
           <div
             className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-white p-6 shadow-xl"
-            onClick={(event) =>
+            onClick={(
+              event
+            ) =>
               event.stopPropagation()
             }
           >
-            {/* Modal header */}
             <div className="mb-5 flex items-start justify-between">
               <div>
                 <h2 className="text-2xl font-bold">
@@ -281,7 +305,6 @@ export default function PastBoardsPage() {
               </button>
             </div>
 
-            {/* Enlarged 3x3 board */}
             <BoardGrid
               board={
                 selectedBoard
@@ -289,19 +312,18 @@ export default function PastBoardsPage() {
               large
             />
 
-            {/* Board actions */}
             <div className="mt-6 flex items-center justify-end gap-3">
-              {/*
-                EDIT BOARD WILL GO HERE NEXT.
-
-                Eventually this will take the user
-                back to something like:
-
-                /?boardId=<board-id>
-
-                Then the home page will load that
-                exact board into OutfitBuilder.
-              */}
+              <button
+                type="button"
+                onClick={() =>
+                  handleEditBoard(
+                    selectedBoard
+                  )
+                }
+                className="rounded-lg bg-black px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
+              >
+                Edit Board
+              </button>
 
               <button
                 type="button"
@@ -354,10 +376,17 @@ function BoardGrid({
       }`}
     >
       {cells.map(
-        (item, position) => (
+        (
+          item,
+          position
+        ) => (
           <BoardCell
-            key={position}
-            item={item}
+            key={
+              position
+            }
+            item={
+              item
+            }
           />
         )
       )}
@@ -368,13 +397,17 @@ function BoardGrid({
 function BoardCell({
   item,
 }: {
-  item: SavedBoardItem | null;
+  item:
+    | SavedBoardItem
+    | null;
 }) {
   return (
     <div className="aspect-square overflow-hidden bg-white">
       {item?.image ? (
         <img
-          src={item.image}
+          src={
+            item.image
+          }
           alt={
             item.name ??
             'Saved outfit item'
