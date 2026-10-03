@@ -1,6 +1,7 @@
 export type ClothingItem = {
   id: string;
   image: string;
+  imagePath: string;
   name: string;
   category: string;
 };

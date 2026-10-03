@@ -10,211 +10,482 @@ import AddClothingModal from './add-clothing-modal';
 import ClothingCard from './clothing-card';
 import EditClothingModal from './edit-clothing-modal';
 
-
 export default function Closet() {
   const {
-  clothes,
-  setClothes,
-  categories,
-  setCategories,
-} = useCloset();
+    clothes,
+    setClothes,
+    categories,
+    setCategories,
+    isLoading,
+  } = useCloset();
 
+  const [
+    pendingImage,
+    setPendingImage,
+  ] = useState<string | null>(null);
 
+  const [
+    pendingFile,
+    setPendingFile,
+  ] = useState<File | null>(null);
 
-  const [pendingImage, setPendingImage] = useState<
-    string | null
-  >(null);
+  const [
+    selectedCategory,
+    setSelectedCategory,
+  ] = useState('All');
 
-  const [selectedCategory, setSelectedCategory] =
-    useState('All');
+  const [
+    searchTerm,
+    setSearchTerm,
+  ] = useState('');
 
-  const [searchTerm, setSearchTerm] = useState('');
+  const [
+    editingItem,
+    setEditingItem,
+  ] = useState<ClothingItem | null>(
+    null
+  );
 
-  const [editingItem, setEditingItem] =
-    useState<ClothingItem | null>(null);
+  const [saveError, setSaveError] =
+    useState<string | null>(null);
 
   function handleChooseImage(file: File) {
-    const imageUrl = URL.createObjectURL(file);
+    if (pendingImage) {
+      URL.revokeObjectURL(
+        pendingImage
+      );
+    }
 
+    const imageUrl =
+      URL.createObjectURL(file);
+
+    setPendingFile(file);
     setPendingImage(imageUrl);
+    setSaveError(null);
   }
 
-  function handleSaveClothing(
+  async function handleSaveClothing(
     name: string,
     category: string
   ) {
-    if (!pendingImage) {
+    if (!pendingFile) {
       return;
     }
 
-    const existingCategory = categories.find(
-      (existing) =>
-        existing.toLowerCase() ===
-        category.toLowerCase()
-    );
+    setSaveError(null);
+
+    const existingCategory =
+      categories.find(
+        (existing) =>
+          existing.toLowerCase() ===
+          category.toLowerCase()
+      );
 
     const finalCategory =
-      existingCategory ?? category;
+      existingCategory ??
+      category.trim();
 
-    const newItem: ClothingItem = {
-      id: crypto.randomUUID(),
-      image: pendingImage,
-      name,
-      category: finalCategory,
-    };
+    const formData =
+      new FormData();
 
-    setClothes((currentClothes) => [
-      ...currentClothes,
-      newItem,
-    ]);
+    formData.append(
+      'file',
+      pendingFile
+    );
 
-    if (!existingCategory) {
-      setCategories((currentCategories) => [
-        ...currentCategories,
-        category,
-      ]);
+    formData.append(
+      'name',
+      name
+    );
+
+    formData.append(
+      'category',
+      finalCategory
+    );
+
+    try {
+      const response = await fetch(
+        '/api/clothing',
+        {
+          method: 'POST',
+          body: formData,
+        }
+      );
+
+      const data =
+        await response.json();
+
+      if (!response.ok) {
+        setSaveError(
+          typeof data.error ===
+          'string'
+            ? data.error
+            : 'Could not save clothing.'
+        );
+
+        return;
+      }
+
+      const newItem =
+        data as ClothingItem;
+
+      setClothes(
+        (currentClothes) => [
+          newItem,
+          ...currentClothes,
+        ]
+      );
+
+      if (!existingCategory) {
+        setCategories(
+          (currentCategories) => [
+            ...currentCategories,
+            finalCategory,
+          ]
+        );
+      }
+
+      if (pendingImage) {
+        URL.revokeObjectURL(
+          pendingImage
+        );
+      }
+
+      setPendingFile(null);
+      setPendingImage(null);
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'Could not save clothing.';
+
+      setSaveError(message);
     }
-
-    setPendingImage(null);
   }
 
   function handleCancelAdd() {
     if (pendingImage) {
-      URL.revokeObjectURL(pendingImage);
+      URL.revokeObjectURL(
+        pendingImage
+      );
     }
 
+    setPendingFile(null);
     setPendingImage(null);
+    setSaveError(null);
   }
 
-  function handleEditClothing(item: ClothingItem) {
+  function handleEditClothing(
+    item: ClothingItem
+  ) {
     setEditingItem(item);
+    setSaveError(null);
   }
 
-  function handleSaveEdit(
+  async function handleSaveEdit(
     id: string,
     name: string,
     category: string
   ) {
-    setClothes((currentClothes) =>
-      currentClothes.map((item) =>
-        item.id === id
-          ? {
-              ...item,
-              name,
-              category,
-            }
-          : item
-      )
-    );
+    setSaveError(null);
 
-    setEditingItem(null);
-  }
+    const existingCategory =
+      categories.find(
+        (existing) =>
+          existing.toLowerCase() ===
+          category.toLowerCase()
+      );
 
-  function handleDeleteClothing(id: string) {
-    const item = clothes.find(
-      (clothing) => clothing.id === id
-    );
+    const finalCategory =
+      existingCategory ??
+      category.trim();
 
-    if (item) {
-      URL.revokeObjectURL(item.image);
+    try {
+      const response = await fetch(
+        '/api/clothing',
+        {
+          method: 'PATCH',
+
+          headers: {
+            'Content-Type':
+              'application/json',
+          },
+
+          body: JSON.stringify({
+            id,
+            name,
+            category: finalCategory,
+          }),
+        }
+      );
+
+      const data =
+        await response.json();
+
+      if (!response.ok) {
+        setSaveError(
+          typeof data.error ===
+          'string'
+            ? data.error
+            : 'Could not update clothing.'
+        );
+
+        return;
+      }
+
+      const updatedItem =
+        data as ClothingItem;
+
+      setClothes(
+        (currentClothes) =>
+          currentClothes.map(
+            (item) =>
+              item.id === id
+                ? updatedItem
+                : item
+          )
+      );
+
+      if (!existingCategory) {
+        setCategories(
+          (currentCategories) => [
+            ...currentCategories,
+            finalCategory,
+          ]
+        );
+      }
+
+      setEditingItem(null);
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'Could not update clothing.';
+
+      setSaveError(message);
     }
-
-    setClothes((currentClothes) =>
-      currentClothes.filter(
-        (clothing) => clothing.id !== id
-      )
-    );
   }
 
-  function handleDeleteCategory(
+  async function handleDeleteClothing(
+    id: string
+  ) {
+    setSaveError(null);
+
+    try {
+      const response = await fetch(
+        `/api/clothing?id=${encodeURIComponent(id)}`,
+        {
+          method: 'DELETE',
+        }
+      );
+
+      const data =
+        await response.json();
+
+      if (!response.ok) {
+        setSaveError(
+          typeof data.error ===
+          'string'
+            ? data.error
+            : 'Could not delete clothing.'
+        );
+
+        return;
+      }
+
+      setClothes(
+        (currentClothes) =>
+          currentClothes.filter(
+            (item) =>
+              item.id !== id
+          )
+      );
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'Could not delete clothing.';
+
+      setSaveError(message);
+    }
+  }
+
+  async function handleDeleteCategory(
     categoryToDelete: string
   ) {
-    if (categoryToDelete === 'All') {
+    if (
+      categoryToDelete === 'All'
+    ) {
       return;
     }
 
-    // Move all clothing in this category back to All.
-    setClothes((currentClothes) =>
-      currentClothes.map((item) =>
-        item.category === categoryToDelete
-          ? {
-              ...item,
-              category: 'All',
+    setSaveError(null);
+
+    const affectedItems =
+      clothes.filter(
+        (item) =>
+          item.category ===
+          categoryToDelete
+      );
+
+    try {
+      const updatedItems =
+        await Promise.all(
+          affectedItems.map(
+            async (item) => {
+              const response =
+                await fetch(
+                  '/api/clothing',
+                  {
+                    method: 'PATCH',
+
+                    headers: {
+                      'Content-Type':
+                        'application/json',
+                    },
+
+                    body: JSON.stringify({
+                      id: item.id,
+                      name: item.name,
+                      category: 'All',
+                    }),
+                  }
+                );
+
+              const data =
+                await response.json();
+
+              if (!response.ok) {
+                throw new Error(
+                  typeof data.error ===
+                  'string'
+                    ? data.error
+                    : 'Could not update clothing.'
+                );
+              }
+
+              return data as ClothingItem;
             }
-          : item
-      )
-    );
+          )
+        );
 
-    // Remove the category.
-    setCategories((currentCategories) =>
-      currentCategories.filter(
-        (category) =>
-          category !== categoryToDelete
-      )
-    );
+      setClothes(
+        (currentClothes) =>
+          currentClothes.map(
+            (item) => {
+              const updatedItem =
+                updatedItems.find(
+                  (updated) =>
+                    updated.id ===
+                    item.id
+                );
 
-    // Return to the All tab.
-    setSelectedCategory('All');
+              return (
+                updatedItem ?? item
+              );
+            }
+          )
+      );
+
+      setCategories(
+        (currentCategories) =>
+          currentCategories.filter(
+            (category) =>
+              category !==
+              categoryToDelete
+          )
+      );
+
+      setSelectedCategory('All');
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'Could not delete category.';
+
+      setSaveError(message);
+    }
   }
 
-  const visibleClothes = clothes.filter((item) => {
-    const matchesSearch = item.name
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase());
+  const visibleClothes =
+    clothes.filter((item) => {
+      const matchesSearch =
+        item.name
+          .toLowerCase()
+          .includes(
+            searchTerm.toLowerCase()
+          );
 
-    const matchesCategory =
-      selectedCategory === 'All' ||
-      item.category === selectedCategory;
+      const matchesCategory =
+        selectedCategory ===
+          'All' ||
+        item.category ===
+          selectedCategory;
 
-    return matchesSearch && matchesCategory;
-  });
+      return (
+        matchesSearch &&
+        matchesCategory
+      );
+    });
 
   return (
     <main className="mx-auto max-w-6xl px-6 py-10">
-      {/* Header */}
       <div className="mb-8 flex items-center justify-between">
         <h1 className="text-3xl font-bold">
           My Closet
         </h1>
 
         <AddClothingButton
-          onAdd={handleChooseImage}
+          onAdd={
+            handleChooseImage
+          }
         />
       </div>
 
-      {/* Search */}
+      {saveError && (
+        <div className="mb-6 rounded-lg border border-red-300 bg-red-50 p-4 text-sm text-red-700">
+          {saveError}
+        </div>
+      )}
+
       <input
         type="text"
         value={searchTerm}
         onChange={(event) =>
-          setSearchTerm(event.target.value)
+          setSearchTerm(
+            event.target.value
+          )
         }
         placeholder="Search your closet..."
         className="mb-5 w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-black"
       />
 
-      {/* Categories */}
       <div className="mb-8 flex flex-wrap gap-2">
-        {categories.map((category) => (
-          <button
-            key={category}
-            type="button"
-            onClick={() =>
-              setSelectedCategory(category)
-            }
-            className={`rounded-full px-4 py-2 text-sm ${
-              selectedCategory === category
-                ? 'bg-black text-white'
-                : 'bg-gray-100 text-gray-700'
-            }`}
-          >
-            {category}
-          </button>
-        ))}
+        {categories.map(
+          (category) => (
+            <button
+              key={category}
+              type="button"
+              onClick={() =>
+                setSelectedCategory(
+                  category
+                )
+              }
+              className={`rounded-full px-4 py-2 text-sm ${
+                selectedCategory ===
+                category
+                  ? 'bg-black text-white'
+                  : 'bg-gray-100 text-gray-700'
+              }`}
+            >
+              {category}
+            </button>
+          )
+        )}
       </div>
 
-      {/* Selected category header */}
-      {selectedCategory !== 'All' && (
+      {selectedCategory !==
+        'All' && (
         <div className="mb-6 flex items-center justify-between">
           <h2 className="text-xl font-semibold">
             {selectedCategory}
@@ -223,9 +494,10 @@ export default function Closet() {
           <button
             type="button"
             onClick={() => {
-              const confirmed = window.confirm(
-                `Delete "${selectedCategory}"? Clothing in this category will be moved to All.`
-              );
+              const confirmed =
+                window.confirm(
+                  `Delete "${selectedCategory}"? Clothing in this category will be moved to All.`
+                );
 
               if (confirmed) {
                 handleDeleteCategory(
@@ -240,8 +512,14 @@ export default function Closet() {
         </div>
       )}
 
-      {/* Closet cards */}
-      {visibleClothes.length === 0 ? (
+      {isLoading ? (
+        <div className="flex min-h-64 items-center justify-center">
+          <p className="text-gray-500">
+            Loading closet...
+          </p>
+        </div>
+      ) : visibleClothes.length ===
+        0 ? (
         <div className="flex min-h-64 items-center justify-center rounded-xl border border-dashed border-gray-300">
           <p className="text-gray-500">
             No clothing found.
@@ -249,30 +527,36 @@ export default function Closet() {
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 md:grid-cols-4">
-          {visibleClothes.map((item) => (
-            <ClothingCard
-              key={item.id}
-              item={item}
-              onDelete={
-                handleDeleteClothing
-              }
-              onEdit={handleEditClothing}
-            />
-          ))}
+          {visibleClothes.map(
+            (item) => (
+              <ClothingCard
+                key={item.id}
+                item={item}
+                onDelete={
+                  handleDeleteClothing
+                }
+                onEdit={
+                  handleEditClothing
+                }
+              />
+            )
+          )}
         </div>
       )}
 
-      {/* Add clothing modal */}
       {pendingImage && (
         <AddClothingModal
           image={pendingImage}
           categories={categories}
-          onClose={handleCancelAdd}
-          onSave={handleSaveClothing}
+          onClose={
+            handleCancelAdd
+          }
+          onSave={
+            handleSaveClothing
+          }
         />
       )}
 
-      {/* Edit clothing modal */}
       {editingItem && (
         <EditClothingModal
           item={editingItem}
@@ -280,7 +564,9 @@ export default function Closet() {
           onClose={() =>
             setEditingItem(null)
           }
-          onSave={handleSaveEdit}
+          onSave={
+            handleSaveEdit
+          }
         />
       )}
     </main>
