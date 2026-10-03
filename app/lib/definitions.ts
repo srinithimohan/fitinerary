@@ -1,8 +1,8 @@
 export type ClothingItem = {
   id: string;
-  userId: string;
-  imageUrl: string;
-  name?: string;
+  image: string;
+  name: string;
+  category: string;
 };
 
 export type Board = {

@@ -15,7 +15,9 @@ export default function AddClothingButton({
     fileInputRef.current?.click();
   }
 
-  function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
+  function handleFileChange(
+    event: React.ChangeEvent<HTMLInputElement>
+  ) {
     const file = event.target.files?.[0];
 
     if (!file) {
@@ -24,6 +26,7 @@ export default function AddClothingButton({
 
     onAdd(file);
 
+    // Allows the same file to be selected again later.
     event.target.value = '';
   }
 
