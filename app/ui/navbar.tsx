@@ -3,6 +3,13 @@
 import Link from 'next/link';
 
 import {
+  Grid3X3,
+  House,
+  Shirt,
+  User,
+} from 'lucide-react';
+
+import {
   Show,
   SignInButton,
   UserButton,
@@ -26,11 +33,15 @@ export default function Navbar() {
       "
     >
       {/* Top navigation */}
-      <div className="flex flex-col items-center gap-4">
+      <div className="mt-12 flex flex-col items-center gap-4">
         <Link
           href="/"
           className="
+            flex
             w-full
+            flex-col
+            items-center
+            gap-2
             rounded-xl
             px-3
             py-3
@@ -39,13 +50,24 @@ export default function Navbar() {
             hover:bg-black/5
           "
         >
-          Home
+          <House
+            size={26}
+            strokeWidth={1.7}
+          />
+
+          <span>
+            Home
+          </span>
         </Link>
 
         <Link
           href="/past-boards"
           className="
+            flex
             w-full
+            flex-col
+            items-center
+            gap-2
             rounded-xl
             px-3
             py-3
@@ -55,19 +77,30 @@ export default function Navbar() {
             hover:bg-black/5
           "
         >
-          <span className="block">
-            Past
-          </span>
+          <Grid3X3
+            size={26}
+            strokeWidth={1.5}
+          />
 
-          <span className="block">
-            Boards
-          </span>
+          <div>
+            <span className="block">
+              Past
+            </span>
+
+            <span className="block">
+              Boards
+            </span>
+          </div>
         </Link>
 
         <Link
           href="/closet"
           className="
+            flex
             w-full
+            flex-col
+            items-center
+            gap-2
             rounded-xl
             px-3
             py-3
@@ -76,7 +109,14 @@ export default function Navbar() {
             hover:bg-black/5
           "
         >
-          Closet
+          <Shirt
+            size={28}
+            strokeWidth={1.7}
+          />
+
+          <span>
+            Closet
+          </span>
         </Link>
       </div>
 
@@ -87,6 +127,10 @@ export default function Navbar() {
             <button
               type="button"
               className="
+                flex
+                flex-col
+                items-center
+                gap-2
                 rounded-xl
                 px-3
                 py-3
@@ -94,7 +138,14 @@ export default function Navbar() {
                 hover:bg-black/5
               "
             >
-              Login
+              <User
+                size={26}
+                strokeWidth={1.7}
+              />
+
+              <span>
+                Login
+              </span>
             </button>
           </SignInButton>
         </Show>
