@@ -20,19 +20,19 @@ export default function BoardActions({
         <button
           type="button"
           onClick={onToggleCloset}
-          className="w-full rounded-lg bg-black px-4 py-2 font-medium text-white hover:bg-gray-800"
+          className="w-full rounded-lg bg-[#98CE00] px-4 py-2 font-medium text-white hover:bg-gray-800"
         >
           {showCloset
-            ? 'Close Closet'
-            : 'Add from Closet'}
+            ? 'close closet'
+            : 'add from closet'}
         </button>
 
         <button
           type="button"
           onClick={onExport}
-          className="w-full rounded-lg border border-black bg-white px-4 py-2 font-medium text-black hover:bg-gray-100"
+          className="w-full rounded-lg bg-[#16E0BD] px-4 py-2 font-medium text-white hover:bg-gray-100"
         >
-          Export Image
+          export image
         </button>
       </div>
 
@@ -41,17 +41,17 @@ export default function BoardActions({
         <button
           type="button"
           onClick={onSave}
-          className="w-full rounded-lg bg-black px-4 py-2 font-medium text-white hover:bg-gray-800"
+          className="w-full rounded-lg bg-[#89A6FB] px-4 py-2 font-medium text-white hover:bg-gray-800"
         >
-          Save Board
+          save board
         </button>
 
         <button
           type="button"
           onClick={onClear}
-          className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 font-medium text-black hover:bg-gray-100"
+          className="w-full rounded-lg bg-[#7B4B94] px-4 py-2 font-medium text-white hover:bg-gray-100"
         >
-          Clear Board
+          clear board
         </button>
       </div>
     </div>

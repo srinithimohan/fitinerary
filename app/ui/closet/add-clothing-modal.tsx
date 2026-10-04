@@ -146,14 +146,14 @@ export default function AddClothingModal({
               <button
                 type="button"
                 onClick={onClose}
-                className="rounded-lg border border-gray-300 px-4 py-2"
+                className="rounded-lg border border-[#5EFC8D] px-4 py-2"
               >
                 Cancel
               </button>
 
               <button
                 type="submit"
-                className="rounded-lg bg-black px-4 py-2 text-white"
+                className="rounded-lg bg-[#5EFC8D] px-4 py-2 text-white"
               >
                 Add to Closet
               </button>

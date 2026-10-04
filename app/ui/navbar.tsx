@@ -29,6 +29,7 @@ export default function Navbar() {
         flex-col
         justify-between
         bg-transparent
+        text-[#4D5382]
         py-4
       "
     >
@@ -46,6 +47,7 @@ export default function Navbar() {
             px-3
             py-3
             text-center
+            text-[#4D5382]
             font-medium
             hover:bg-black/5
           "
@@ -53,10 +55,11 @@ export default function Navbar() {
           <House
             size={26}
             strokeWidth={1.7}
+            
           />
 
           <span>
-            Home
+            home
           </span>
         </Link>
 
@@ -73,6 +76,7 @@ export default function Navbar() {
             py-3
             text-center
             font-medium
+            text-[#4D5382]
             leading-tight
             hover:bg-black/5
           "
@@ -84,11 +88,11 @@ export default function Navbar() {
 
           <div>
             <span className="block">
-              Past
+              past
             </span>
 
             <span className="block">
-              Boards
+              boards
             </span>
           </div>
         </Link>
@@ -105,7 +109,9 @@ export default function Navbar() {
             px-3
             py-3
             text-center
+            text-[#4D5382]
             font-medium
+            text-[#4D5382]
             hover:bg-black/5
           "
         >
@@ -115,12 +121,12 @@ export default function Navbar() {
           />
 
           <span>
-            Closet
+            closet
           </span>
         </Link>
       </div>
 
-      {/* Bottom authentication */}
+
       <div className="flex justify-center pb-2">
         <Show when="signed-out">
           <SignInButton mode="modal">
@@ -135,6 +141,7 @@ export default function Navbar() {
                 px-3
                 py-3
                 font-medium
+                text-[#4D5382]
                 hover:bg-black/5
               "
             >
@@ -144,7 +151,7 @@ export default function Navbar() {
               />
 
               <span>
-                Login
+                login
               </span>
             </button>
           </SignInButton>

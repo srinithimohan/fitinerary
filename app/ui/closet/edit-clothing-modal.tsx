@@ -25,19 +25,19 @@ export default function EditClothingModal({
     item.category
   );
 
-  function handleSubmit(
-    event: React.FormEvent<HTMLFormElement>
-  ) {
-    event.preventDefault();
+const handleSubmit: React.SubmitEventHandler<HTMLFormElement> = (
+  event
+) => {
+  event.preventDefault();
 
-    const finalName = name.trim();
+  const finalName = name.trim();
 
-    if (!finalName) {
-      return;
-    }
-
-    onSave(item.id, finalName, category);
+  if (!finalName) {
+    return;
   }
+
+  onSave(item.id, finalName, category);
+};
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
@@ -60,12 +60,12 @@ export default function EditClothingModal({
             className="flex flex-col justify-center"
           >
             <h2 className="mb-6 text-2xl font-bold">
-              Edit Clothing
+              edit clothing
             </h2>
 
             {/* Name */}
             <label className="mb-2 font-medium">
-              Name
+              name
             </label>
 
             <input
@@ -79,7 +79,7 @@ export default function EditClothingModal({
 
             {/* Category */}
             <label className="mb-2 font-medium">
-              Category
+              category
             </label>
 
             <select
@@ -99,21 +99,21 @@ export default function EditClothingModal({
               ))}
             </select>
 
-            {/* Buttons */}
+            {/* buttons */}
             <div className="mt-8 flex justify-end gap-3">
               <button
                 type="button"
                 onClick={onClose}
                 className="rounded-lg border border-gray-300 px-4 py-2"
               >
-                Cancel
+                cancel
               </button>
 
               <button
                 type="submit"
                 className="rounded-lg bg-black px-4 py-2 text-white"
               >
-                Save Changes
+                save changes
               </button>
             </div>
           </form>

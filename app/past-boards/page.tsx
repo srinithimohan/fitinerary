@@ -12,6 +12,8 @@ import type {
   SavedBoardItem,
 } from '@/app/lib/definitions';
 
+import { orbitron } from '../ui/fonts';
+
 export default function PastBoardsPage() {
   const router =
     useRouter();
@@ -176,13 +178,15 @@ export default function PastBoardsPage() {
   return (
     <main className="mx-auto max-w-6xl py-10 pl-6 pr-36">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold">
-          Past Boards
+        <h1
+          className={`${orbitron.className} text-3xl font-bold text-[#4D5382]`}
+        >
+          past boards
         </h1>
 
-        <p className="mt-2 text-gray-500">
-          View your saved travel
-          wardrobes.
+        <p className="mt-2 text-[#4D5382]">
+          view your saved travel
+          wardrobes
         </p>
       </div>
 
@@ -195,7 +199,7 @@ export default function PastBoardsPage() {
           )
         }
         placeholder="Search boards..."
-        className="mb-8 w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-black"
+        className="mb-8 w-full rounded-lg border border-[#4D5382] px-4 py-3 outline-none focus:border-black"
       />
 
       {error && (
@@ -212,7 +216,7 @@ export default function PastBoardsPage() {
         </div>
       ) : visibleBoards.length ===
         0 ? (
-        <div className="flex min-h-64 items-center justify-center rounded-xl border border-dashed border-gray-300">
+        <div className="flex min-h-64 items-center justify-center rounded-xl border border-dashed border-[#4D5382]">
           <p className="text-gray-500">
             {searchTerm
               ? 'No boards match your search.'

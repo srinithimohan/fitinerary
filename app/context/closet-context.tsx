@@ -76,11 +76,6 @@ export function ClosetProvider({
 
         setClothes(data);
 
-        /*
-         * If the database has custom
-         * categories, add those categories
-         * back after refreshing.
-         */
         setCategories(
           (currentCategories) => {
             const newCategories =

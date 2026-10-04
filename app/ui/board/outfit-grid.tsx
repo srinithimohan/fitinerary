@@ -125,9 +125,6 @@ export default function OutfitGrid({
       return;
     }
 
-    /*
-     * CLOSET -> BOARD
-     */
     if (
       source.type === 'closet-item'
     ) {
@@ -204,9 +201,6 @@ export default function OutfitGrid({
       return;
     }
 
-    /*
-     * BOARD -> BOARD
-     */
     if (!isSortable(source)) {
       return;
     }
@@ -257,7 +251,7 @@ export default function OutfitGrid({
   </div>
 )}
 
-      <div className="grid w-[min(90vw,75vh)] max-w-[600px] grid-cols-3 gap-2 bg-transparent">
+      <div className="grid w-[min(90vw,70vh)] max-w-[600px] grid-cols-3 gap-2 bg-transparent">
         {cells.map(
           (cell, index) => (
             <SortableGridCell

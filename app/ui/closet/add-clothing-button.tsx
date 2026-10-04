@@ -37,7 +37,7 @@ export default function AddClothingButton({
         onClick={handleClick}
         className="rounded-lg bg-black px-4 py-2 font-medium text-white hover:bg-gray-800"
       >
-        + Add Clothing
+        + add clothing
       </button>
 
       <input

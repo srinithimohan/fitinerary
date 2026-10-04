@@ -28,12 +28,7 @@ export default function SortableGridCell({
     id,
     index,
 
-    // This item itself is a board cell.
     type: 'board-cell',
-
-    // Board cells accept:
-    // 1. other board cells for reordering
-    // 2. closet items for adding/replacing images
     accept: ['board-cell', 'closet-item'],
   });
 
@@ -54,10 +49,9 @@ export default function SortableGridCell({
         items-center
         justify-center
         overflow-hidden
-        border
-        border-black
         bg-white
         transition
+        rounded-xl
         ${isDragging ? 'opacity-50' : ''}
         ${
           isDropTarget
@@ -74,11 +68,10 @@ export default function SortableGridCell({
             className="h-full w-full object-cover"
           />
 
-          {/* Replace using upload */}
           <button
             type="button"
             onClick={handleChooseImage}
-            className="absolute bottom-2 right-2 rounded-md bg-white/90 px-2 py-1 text-xs font-medium text-black shadow hover:bg-white"
+            className="absolute bottom-2 right-2 rounded-md bg-white px-2 py-1 text-xs font-medium text-black shadow hover:bg-white"
           >
             Upload
           </button>
@@ -87,9 +80,9 @@ export default function SortableGridCell({
         <button
           type="button"
           onClick={handleChooseImage}
-          className="flex h-full w-full items-center justify-center text-sm text-gray-500 hover:bg-gray-50"
+          className="flex h-full w-full items-center rounded-md justify-center text-sm text-gray-500 hover:bg-gray-50"
         >
-          + Add Photo
+          + add photo
         </button>
       )}
 

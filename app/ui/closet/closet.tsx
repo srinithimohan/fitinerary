@@ -10,6 +10,8 @@ import AddClothingModal from './add-clothing-modal';
 import ClothingCard from './clothing-card';
 import EditClothingModal from './edit-clothing-modal';
 
+import { orbitron } from '../fonts';
+
 export default function Closet() {
   const {
     clothes,
@@ -120,7 +122,7 @@ export default function Closet() {
           typeof data.error ===
           'string'
             ? data.error
-            : 'Could not save clothing.'
+            : 'could not save clothing.'
         );
 
         return;
@@ -401,7 +403,7 @@ export default function Closet() {
       const message =
         error instanceof Error
           ? error.message
-          : 'Could not delete category.';
+          : 'could not delete category.';
 
       setSaveError(message);
     }
@@ -431,8 +433,8 @@ export default function Closet() {
   return (
     <main className="mx-auto max-w-6xl py-10 pl-6 pr-36">
       <div className="mb-8 flex items-center justify-between">
-        <h1 className="text-3xl font-bold">
-          My Closet
+        <h1 className={`${orbitron.className} text-3xl text-[#4D5382] font-bold`}>
+          closet
         </h1>
 
         <AddClothingButton
@@ -456,8 +458,8 @@ export default function Closet() {
             event.target.value
           )
         }
-        placeholder="Search your closet..."
-        className="mb-5 w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-black"
+        placeholder="search your closet..."
+        className="mb-5 w-full rounded-lg border border-[#4D5382] px-4 py-3 outline-none focus:border-black"
       />
 
       <div className="mb-8 flex flex-wrap gap-2">
@@ -474,7 +476,7 @@ export default function Closet() {
               className={`rounded-full px-4 py-2 text-sm ${
                 selectedCategory ===
                 category
-                  ? 'bg-black text-white'
+                  ? 'bg-[#98CE00] text-white'
                   : 'bg-gray-100 text-gray-700'
               }`}
             >
@@ -507,7 +509,7 @@ export default function Closet() {
             }}
             className="text-sm font-medium text-red-600 hover:text-red-800"
           >
-            Delete Category
+            deleteCategory
           </button>
         </div>
       )}
@@ -515,14 +517,14 @@ export default function Closet() {
       {isLoading ? (
         <div className="flex min-h-64 items-center justify-center">
           <p className="text-gray-500">
-            Loading closet...
+            loading closet...
           </p>
         </div>
       ) : visibleClothes.length ===
         0 ? (
-        <div className="flex min-h-64 items-center justify-center rounded-xl border border-dashed border-gray-300">
+        <div className="flex min-h-64 items-center justify-center rounded-xl border border-dashed border-[#4D5382]">
           <p className="text-gray-500">
-            No clothing found.
+            no clothing found
           </p>
         </div>
       ) : (
