@@ -36,13 +36,6 @@ function createInitialCells(): GridCell[] {
 async function loadCanvasImage(
   imageUrl: string
 ): Promise<HTMLImageElement> {
-  /*
-   * Fetch the image first and turn it
-   * into a local blob URL.
-   *
-   * This is especially useful for
-   * private Supabase signed URLs.
-   */
   const response =
     await fetch(imageUrl);
 
@@ -114,10 +107,6 @@ function drawImageCover(
     image.height;
 
   if (imageRatio > cellRatio) {
-    /*
-     * Image is wider than the cell.
-     * Crop the sides.
-     */
     sourceWidth =
       image.height *
       cellRatio;
@@ -127,10 +116,6 @@ function drawImageCover(
         sourceWidth) /
       2;
   } else {
-    /*
-     * Image is taller than the cell.
-     * Crop the top and bottom.
-     */
     sourceHeight =
       image.width /
       cellRatio;
@@ -187,6 +172,11 @@ export default function OutfitBuilder() {
   const [
     isExporting,
     setIsExporting,
+  ] = useState(false);
+
+  const [
+    showCloset,
+    setShowCloset,
   ] = useState(false);
 
   useEffect(() => {
@@ -350,10 +340,6 @@ export default function OutfitBuilder() {
     setIsExporting(true);
 
     try {
-      /*
-       * Export at 1800x1800 so the
-       * resulting PNG is high resolution.
-       */
       const canvas =
         document.createElement(
           'canvas'
@@ -387,7 +373,11 @@ export default function OutfitBuilder() {
       }
 
       /*
-       * White board background.
+       * Board background.
+       *
+       * Change this if you want the
+       * exported gaps to match a
+       * different page background.
        */
       context.fillStyle =
         '#ffffff';
@@ -423,9 +413,6 @@ export default function OutfitBuilder() {
           row *
           (cellSize + gap);
 
-        /*
-         * Empty cell background.
-         */
         context.fillStyle =
           '#ffffff';
 
@@ -452,10 +439,6 @@ export default function OutfitBuilder() {
           );
         }
 
-        /*
-         * Draw the black cell border
-         * from your actual board.
-         */
         context.strokeStyle =
           '#000000';
 
@@ -780,17 +763,19 @@ export default function OutfitBuilder() {
       <OutfitGrid
         cells={cells}
         setCells={setCells}
+        showCloset={showCloset}
       />
 
       <BoardActions
-        onClear={
-          handleClear
-        }
-        onSave={
-          handleSave
-        }
-        onExport={
-          handleExport
+        onClear={handleClear}
+        onSave={handleSave}
+        onExport={handleExport}
+        showCloset={showCloset}
+        onToggleCloset={() =>
+          setShowCloset(
+            (current) =>
+              !current
+          )
         }
       />
 

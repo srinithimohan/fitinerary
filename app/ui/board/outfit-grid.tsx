@@ -3,8 +3,6 @@
 import { DragDropProvider } from '@dnd-kit/react';
 import { isSortable } from '@dnd-kit/react/sortable';
 
-import { useState } from 'react';
-
 import { useCloset } from '@/app/context/closet-context';
 import type { ClothingItem } from '@/app/lib/definitions';
 
@@ -19,17 +17,17 @@ type OutfitGridProps = {
   setCells: React.Dispatch<
     React.SetStateAction<GridCell[]>
   >;
+
+  showCloset: boolean;
 };
 
 export default function OutfitGrid({
   cells,
   setCells,
+  showCloset,
 }: OutfitGridProps) {
   const { clothes, categories } =
     useCloset();
-
-  const [showCloset, setShowCloset] =
-    useState(false);
 
   function handleAddFromCloset(
     item: ClothingItem
@@ -38,8 +36,7 @@ export default function OutfitGrid({
       const alreadyOnBoard =
         currentCells.some(
           (cell) =>
-            cell.clothingItemId ===
-            item.id
+            cell.clothingItemId === item.id
         );
 
       if (alreadyOnBoard) {
@@ -48,8 +45,7 @@ export default function OutfitGrid({
 
       const firstEmptyIndex =
         currentCells.findIndex(
-          (cell) =>
-            cell.image === null
+          (cell) => cell.image === null
         );
 
       if (firstEmptyIndex === -1) {
@@ -61,16 +57,10 @@ export default function OutfitGrid({
           index === firstEmptyIndex
             ? {
                 ...cell,
-
                 image: item.image,
-
-                clothingItemId:
-                  item.id,
-
+                clothingItemId: item.id,
                 file: null,
-
-                snapshotPath:
-                  null,
+                snapshotPath: null,
               }
             : cell
       );
@@ -108,13 +98,9 @@ export default function OutfitGrid({
 
         return {
           ...cell,
-
           image: imageUrl,
-
           clothingItemId: null,
-
           file,
-
           snapshotPath: null,
         };
       })
@@ -140,11 +126,10 @@ export default function OutfitGrid({
     }
 
     /*
-     * CLOSET ITEM -> BOARD
+     * CLOSET -> BOARD
      */
     if (
-      source.type ===
-      'closet-item'
+      source.type === 'closet-item'
     ) {
       if (!target) {
         return;
@@ -153,8 +138,7 @@ export default function OutfitGrid({
       const targetExists =
         cells.some(
           (cell) =>
-            cell.id ===
-            target.id
+            cell.id === target.id
         );
 
       if (!targetExists) {
@@ -168,9 +152,7 @@ export default function OutfitGrid({
         'closet-item:';
 
       if (
-        !sourceId.startsWith(
-          prefix
-        )
+        !sourceId.startsWith(prefix)
       ) {
         return;
       }
@@ -183,8 +165,7 @@ export default function OutfitGrid({
       const closetItem =
         clothes.find(
           (item) =>
-            item.id ===
-            clothingItemId
+            item.id === clothingItemId
         );
 
       if (!closetItem) {
@@ -194,8 +175,7 @@ export default function OutfitGrid({
       setCells((currentCells) =>
         currentCells.map((cell) => {
           if (
-            cell.id !==
-            target.id
+            cell.id !== target.id
           ) {
             return cell;
           }
@@ -211,17 +191,12 @@ export default function OutfitGrid({
 
           return {
             ...cell,
-
             image:
               closetItem.image,
-
             clothingItemId:
               closetItem.id,
-
             file: null,
-
-            snapshotPath:
-              null,
+            snapshotPath: null,
           };
         })
       );
@@ -230,7 +205,7 @@ export default function OutfitGrid({
     }
 
     /*
-     * BOARD CELL -> BOARD CELL
+     * BOARD -> BOARD
      */
     if (!isSortable(source)) {
       return;
@@ -270,66 +245,32 @@ export default function OutfitGrid({
 
   return (
     <DragDropProvider
-      onDragEnd={
-        handleDragEnd
-      }
+      onDragEnd={handleDragEnd}
     >
       {showCloset && (
-        <div className="fixed left-4 top-1/2 z-40 max-h-[calc(100vh-4rem)] -translate-y-1/2 overflow-hidden">
-          <ClosetPicker
-            clothes={clothes}
-            categories={
-              categories
-            }
-            onSelect={
-              handleAddFromCloset
-            }
-          />
-        </div>
-      )}
+  <div className="fixed left-4 top-1/2 z-40 max-h-[calc(100vh-4rem)] -translate-y-1/2 overflow-hidden">
+    <ClosetPicker
+      clothes={clothes}
+      categories={categories}
+      onSelect={handleAddFromCloset}
+    />
+  </div>
+)}
 
-      <div className="flex flex-col items-center gap-4">
-        <button
-          type="button"
-          onClick={() =>
-            setShowCloset(
-              (current) =>
-                !current
-            )
-          }
-          className="rounded-lg bg-black px-4 py-2 font-medium text-white hover:bg-gray-800"
-        >
-          {showCloset
-            ? 'Close Closet'
-            : 'Add from Closet'}
-        </button>
-
-        <div className="grid w-[min(90vw,75vh)] max-w-[600px] grid-cols-3 gap-2 bg-transparent">
-          {cells.map(
-            (
-              cell,
-              index
-            ) => (
-              <SortableGridCell
-                key={
-                  cell.id
-                }
-                id={
-                  cell.id
-                }
-                index={
-                  index
-                }
-                image={
-                  cell.image
-                }
-                onImageUpload={
-                  handleImageUpload
-                }
-              />
-            )
-          )}
-        </div>
+      <div className="grid w-[min(90vw,75vh)] max-w-[600px] grid-cols-3 gap-2 bg-transparent">
+        {cells.map(
+          (cell, index) => (
+            <SortableGridCell
+              key={cell.id}
+              id={cell.id}
+              index={index}
+              image={cell.image}
+              onImageUpload={
+                handleImageUpload
+              }
+            />
+          )
+        )}
       </div>
     </DragDropProvider>
   );
