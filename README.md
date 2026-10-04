@@ -6,7 +6,7 @@ fitinerary is a full-stack travel wardrobe platform built around making outfit p
 
 ## why i built it
 
-after struggling to pack for a trip with friends, i wanted to build an application that would allow me to see potential outfits and pairings in real time. this project also gave me a focused way to learn about full-stack application building, and allowed me to ship from start to finish.
+after struggling to pack for a trip with friends, i wanted to build an application that would let me visualize potential outfits and clothing combinations in real time. this project also gave me a focused way to learn full-stack development and take a product from idea to deployment.
 
 ## architecture 
 
