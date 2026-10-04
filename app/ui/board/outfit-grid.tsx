@@ -1,6 +1,9 @@
 'use client';
 
-import { DragDropProvider } from '@dnd-kit/react';
+import {
+  DragDropProvider,
+  type DragEndEvent,
+} from '@dnd-kit/react';
 import { isSortable } from '@dnd-kit/react/sortable';
 
 import { useCloset } from '@/app/context/closet-context';
@@ -110,7 +113,7 @@ export default function OutfitGrid({
   }
 
   function handleDragEnd(
-    event: any
+    event: DragEndEvent
   ) {
     if (event.canceled) {
       return;

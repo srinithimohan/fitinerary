@@ -16,6 +16,25 @@ export type GridCell = {
   snapshotPath: string | null;
 };
 
+type BoardItemResponse = {
+  position: number;
+  image: string | null;
+  clothingItemId: string | null;
+  imagePath: string | null;
+};
+
+type LoadBoardResponse = {
+  id?: string;
+  name?: string;
+  items?: BoardItemResponse[];
+  error?: string;
+};
+
+type SaveBoardResponse = {
+  name?: string;
+  error?: string;
+};
+
 function createInitialCells(): GridCell[] {
   return Array.from(
     { length: 9 },
@@ -206,7 +225,7 @@ export default function OutfitBuilder() {
         const responseText =
           await response.text();
 
-        let data: any = {};
+        let data: LoadBoardResponse = {};
 
         if (responseText) {
           try {
@@ -225,6 +244,15 @@ export default function OutfitBuilder() {
           throw new Error(
             data.error ||
               `Could not load board. Status: ${response.status}`
+          );
+        }
+        if (
+          !data.id ||
+          !data.name ||
+          !Array.isArray(data.items)
+        ) {
+          throw new Error(
+            'Server returned incomplete board data.'
           );
         }
 
@@ -665,7 +693,7 @@ export default function OutfitBuilder() {
       const responseText =
         await response.text();
 
-      let data: any = {};
+      let data: SaveBoardResponse = {};
 
       if (responseText) {
         try {
