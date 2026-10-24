@@ -98,13 +98,20 @@ describe('board routes (mocked Clerk/Supabase)', () => {
 
   it('edits a board while preserving existing snapshot references', async () => {
     const snapshot = 'user-a/board-snapshots/board-1/saved.png';
-    db.results.push(ok({ id: board.id }), ok([]), ok(), ok(board));
+    const omitted = 'user-a/board-snapshots/board-1/omitted.png';
+    db.results.push(ok({ id: board.id }), ok([
+      { id: 'kept-row', position: 0, image_path_snapshot: snapshot },
+      { id: 'omitted-row', position: 1, image_path_snapshot: omitted },
+    ]), ok(), ok(), ok(board));
     const response = await PATCH(formRequest([{ position: 0, snapshotPath: snapshot, clothingItemId: null }], undefined, 'PATCH'), context());
     expect(response.status).toBe(200);
     expect(db.queries[2].upsert).toHaveBeenCalledWith([expect.objectContaining({ board_id: board.id, position: 0, image_path_snapshot: snapshot })], { onConflict: 'board_id,position' });
-    expect(db.queries[3].update).toHaveBeenCalledWith({ name: 'Trip', updated_at: expect.any(String) });
+    expect(db.queries[3].delete).toHaveBeenCalledOnce();
+    expect(db.queries[3].in).toHaveBeenCalledExactlyOnceWith('id', ['omitted-row']);
+    expect(db.queries[4].update).toHaveBeenCalledWith({ name: 'Trip', updated_at: expect.any(String) });
     expect(db.bucket.copy).not.toHaveBeenCalled();
-    expect(db.bucket.remove).not.toHaveBeenCalled();
+    expect(db.bucket.remove).toHaveBeenCalledExactlyOnceWith([omitted]);
+    expect(db.bucket.remove.mock.calls.flat(2)).not.toContain(snapshot);
   });
 
   it('rejects another owner prefix on a supplied snapshot', async () => {
@@ -114,7 +121,7 @@ describe('board routes (mocked Clerk/Supabase)', () => {
     expect(db.bucket.upload).not.toHaveBeenCalled();
   });
 
-  it('deletes snapshot storage before deleting the board', async () => {
+  it('successfully deletes a board and its snapshot images', async () => {
     const path = 'user-a/board-snapshots/board-1/photo.png';
     db.results.push(ok([{ image_path_snapshot: path }]), ok({ id: board.id }));
     expect((await DELETE(request(), context())).status).toBe(200);
@@ -127,5 +134,109 @@ describe('board routes (mocked Clerk/Supabase)', () => {
     db.bucket.remove.mockResolvedValue(failure('storage unavailable'));
     expect((await DELETE(request(), context())).status).toBe(500);
     expect(db.queries).toHaveLength(1);
+  });
+
+  describe('known defects (follow-up: docs/security-audit.md#board-consistency-follow-up)', () => {
+    // These assert observed calls/error responses, not real persisted state.
+    // Fixes must replace the unsafe expectations in a separately scoped PR.
+    const oldItems = [
+      { id: 'replaced-row', position: 0, image_path_snapshot: 'user-a/board-snapshots/board-1/old.png' },
+      { id: 'omitted-row', position: 1, image_path_snapshot: 'user-a/board-snapshots/board-1/omitted.png' },
+    ];
+    const replacement = () => formRequest([{ position: 0, hasUpload: true }], new File(['fixture'], 'new.png', { type: 'image/png' }), 'PATCH');
+
+    it('BD-01: accepts an unrelated same-user snapshot path without copying it', async () => {
+      const unrelated = 'user-a/board-snapshots/board-2/shared.png';
+      db.results.push(ok({ id: board.id }), ok([oldItems[0]]), ok(), ok(board));
+      const response = await PATCH(formRequest([{ position: 0, snapshotPath: unrelated, clothingItemId: null }], undefined, 'PATCH'), context());
+      expect(response.status).toBe(200);
+      expect(db.queries[2].upsert).toHaveBeenCalledWith([expect.objectContaining({ image_path_snapshot: unrelated })], { onConflict: 'board_id,position' });
+      expect(db.bucket.copy).not.toHaveBeenCalled();
+      expect(db.bucket.upload).not.toHaveBeenCalled();
+      expect(db.bucket.remove).toHaveBeenCalledExactlyOnceWith([oldItems[0].image_path_snapshot]);
+      // The alias above is not desired behavior. A scripted later read models
+      // that reference; it does not establish persistence in a real database.
+      db.results.push(ok([{ image_path_snapshot: unrelated }]), ok({ id: board.id }));
+      expect((await DELETE(request(), context())).status).toBe(200);
+      expect(db.bucket.remove).toHaveBeenNthCalledWith(2, [unrelated]);
+    });
+
+    it('BD-02: removes images even when the subsequent board deletion fails', async () => {
+      const path = oldItems[0].image_path_snapshot;
+      db.results.push(ok([{ image_path_snapshot: path }]), failure('board delete failed'));
+      const response = await DELETE(request(), context());
+      expect(response.status).toBe(500);
+      expect(await response.json()).toEqual({ error: 'board delete failed' });
+      expect(db.bucket.remove).toHaveBeenCalledExactlyOnceWith([path]);
+      expect(db.queries[1].delete).toHaveBeenCalledOnce();
+      expect(db.queries[1].eq).toHaveBeenCalledWith('id', board.id);
+      expect(db.bucket.remove.mock.invocationCallOrder[0]).toBeLessThan(db.queries[1].delete.mock.invocationCallOrder[0]);
+      expect(db.bucket.copy).not.toHaveBeenCalled();
+      expect(db.bucket.upload).not.toHaveBeenCalled();
+      expect(db.queries).toHaveLength(2);
+    });
+
+    it('BD-03: does not undo item upsert when omitted-row deletion returns an error', async () => {
+      db.results.push(ok({ id: board.id }), ok(oldItems), ok(), failure('row delete failed'));
+      const response = await PATCH(replacement(), context());
+      expect(response.status).toBe(500);
+      expect(await response.json()).toEqual({ error: 'row delete failed' });
+      const newPath = db.bucket.upload.mock.calls[0][0];
+      expect(db.bucket.upload).toHaveBeenCalledOnce();
+      expect(db.queries[2].upsert).toHaveBeenCalledExactlyOnceWith([expect.objectContaining({ image_path_snapshot: newPath })], { onConflict: 'board_id,position' });
+      expect(db.queries[3].delete).toHaveBeenCalledOnce();
+      expect(db.queries[3].in).toHaveBeenCalledWith('id', ['omitted-row']);
+      expect(db.bucket.upload.mock.invocationCallOrder[0]).toBeLessThan(db.queries[2].upsert.mock.invocationCallOrder[0]);
+      expect(db.queries[2].upsert.mock.invocationCallOrder[0]).toBeLessThan(db.queries[3].delete.mock.invocationCallOrder[0]);
+      expect(db.queries).toHaveLength(4); // No board update or compensating write.
+      expect(db.bucket.remove).not.toHaveBeenCalled();
+    });
+
+    it('BD-04: does not undo item writes when the later board update returns an error', async () => {
+      db.results.push(ok({ id: board.id }), ok(oldItems), ok(), ok(), failure('board update failed'));
+      const response = await PATCH(replacement(), context());
+      expect(response.status).toBe(500);
+      expect(await response.json()).toEqual({ error: 'board update failed' });
+      const newPath = db.bucket.upload.mock.calls[0][0];
+      expect(db.queries[2].upsert).toHaveBeenCalledExactlyOnceWith([expect.objectContaining({ image_path_snapshot: newPath })], { onConflict: 'board_id,position' });
+      expect(db.queries[3].delete).toHaveBeenCalledOnce();
+      expect(db.queries[3].in).toHaveBeenCalledWith('id', ['omitted-row']);
+      expect(db.queries[4].update).toHaveBeenCalledWith({ name: 'Trip', updated_at: expect.any(String) });
+      expect(db.queries[2].upsert.mock.invocationCallOrder[0]).toBeLessThan(db.queries[3].delete.mock.invocationCallOrder[0]);
+      expect(db.queries[3].delete.mock.invocationCallOrder[0]).toBeLessThan(db.queries[4].update.mock.invocationCallOrder[0]);
+      expect(db.queries).toHaveLength(5); // No compensating writes.
+      expect(db.bucket.remove).not.toHaveBeenCalled();
+    });
+
+    it('BD-05: returns success despite a Storage cleanup error after item persistence', async () => {
+      db.results.push(ok({ id: board.id }), ok([oldItems[0]]), ok(), ok(board));
+      db.bucket.remove.mockResolvedValueOnce(failure('old image cleanup failed'));
+      const response = await PATCH(replacement(), context());
+      expect(response.status).toBe(200);
+      expect(await response.json()).toEqual({ id: board.id, name: board.name });
+      const newPath = db.bucket.upload.mock.calls[0][0];
+      expect(db.queries[2].upsert).toHaveBeenCalledExactlyOnceWith([expect.objectContaining({ image_path_snapshot: newPath })], { onConflict: 'board_id,position' });
+      expect(db.queries[3].update).toHaveBeenCalledOnce();
+      expect(db.queries[3].single.mock.invocationCallOrder[0]).toBeLessThan(db.bucket.remove.mock.invocationCallOrder[0]);
+      expect(db.bucket.remove).toHaveBeenCalledExactlyOnceWith([oldItems[0].image_path_snapshot]);
+      expect(db.queries).toHaveLength(4);
+    });
+
+    it('BD-06: thrown old-image cleanup triggers removal of a newly referenced image', async () => {
+      db.results.push(ok({ id: board.id }), ok([oldItems[0]]), ok(), ok(board));
+      db.bucket.remove.mockRejectedValueOnce(new Error('cleanup threw')).mockResolvedValueOnce(ok());
+      const response = await PATCH(replacement(), context());
+      expect(response.status).toBe(500);
+      expect(await response.json()).toEqual({ error: 'Could not update board: cleanup threw' });
+      const newPath = db.bucket.upload.mock.calls[0][0];
+      expect(db.queries[2].upsert).toHaveBeenCalledExactlyOnceWith([expect.objectContaining({ image_path_snapshot: newPath })], { onConflict: 'board_id,position' });
+      expect(db.queries[3].update).toHaveBeenCalledOnce();
+      expect(db.queries[2].upsert.mock.invocationCallOrder[0]).toBeLessThan(db.queries[3].single.mock.invocationCallOrder[0]);
+      expect(db.queries[3].single.mock.invocationCallOrder[0]).toBeLessThan(db.bucket.remove.mock.invocationCallOrder[0]);
+      expect(db.bucket.remove).toHaveBeenCalledTimes(2);
+      expect(db.bucket.remove).toHaveBeenNthCalledWith(1, [oldItems[0].image_path_snapshot]);
+      expect(db.bucket.remove).toHaveBeenNthCalledWith(2, [newPath]);
+      expect(db.queries).toHaveLength(4); // References are not rolled back by this catch path.
+    });
   });
 });

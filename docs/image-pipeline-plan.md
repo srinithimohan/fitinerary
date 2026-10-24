@@ -10,6 +10,7 @@ Status: architecture approved; only PR 1A foundation work is authorized for impl
 - `app/api/boards/route.ts` and `app/api/boards/[id]/route.ts`: direct uploads and independent copies of closet images for saved-board snapshots. `app/ui/board/outfit-builder.tsx`: browser canvas export.
 - The owner supplied clothing columns: UUID `id` default `gen_random_uuid()`, text `user_id` default JWT subject, required text `name`, `category`, `image_path`, and created/updated timestamps default `now()`. The only reported constraint is its primary key. `Uncategorized` satisfies the known API/schema requirements, but production triggers and policies remain unverified.
 - No schema/policy export is checked in. See `security-audit.md` for the repository audit. Tests with mocks do not establish deployed RLS, Storage, or Clerk correctness.
+- Owner-verified configuration (review supplied 2026-10-24): `clothing-images` is private, limited to 5,242,880 bytes with `["image/*"]`; RLS is enabled and `force_rls = false` on clothing, boards, board items, and Storage objects. Policy predicates, effective privileges, and cross-user behavior remain unverified. These settings do not protect against same-user snapshot aliasing; see the audit's separate board consistency follow-up.
 
 ## Product requirements
 

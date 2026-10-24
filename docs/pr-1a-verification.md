@@ -22,7 +22,7 @@ On a clean Linux host, use `pnpm exec playwright install --with-deps chromium`. 
 
 ## Check results
 
-Verification date: 2026-10-24. All final application checks below ran against the PR 1A tree; the production source remains unchanged.
+Verification date: 2026-10-24. The initial results below apply to PR head `cf91ce7626ed09ae5751b8f6c6e1c5f88f681dde`. Review-correction results are recorded separately below; production source remains unchanged.
 
 | Check | Result / boundary |
 | --- | --- |
@@ -45,13 +45,26 @@ Verification date: 2026-10-24. All final application checks below ran against th
 
 Local execution required normal sandbox escalation for registry access, Docker's local socket, Chromium download/execution, and local server binding. No sandbox protections were disabled. Build network access is needed because the existing app downloads Orbitron through `next/font/google`.
 
+### Review corrections
+
+The owner independently reviewed [Actions run 40061789520](https://github.com/srinithimohan/fitinerary/actions/runs/40061789520), which matches initial head `cf91ce7` and passed frozen installation, lint, typecheck, 36 unit tests, audit SQL self-test, seven Chromium tests, and default build on Node 22.23.3. That evidence is not a result for the later correction commit.
+
+The review correction changes tests/documentation only:
+
+- Preservation now starts with a matching existing snapshot row and an omitted row. Assertions check that row deletion and Storage cleanup exclude the retained reference and include the omitted one.
+- Six explicitly labeled BD-01–BD-06 cases characterize same-user aliasing, database deletion after successful image removal, two post-upsert database errors, an ignored returned cleanup error, and a thrown cleanup error that removes a newly referenced image. See the audit's [corrective follow-up](security-audit.md#board-consistency-follow-up). These are existing defects, not desired contracts or application fixes.
+- Owner-verified private visibility, 5,242,880-byte limit, `["image/*"]`, RLS enabled, and `force_rls = false` are recorded with provenance. Policy predicates, effective privileges and real authorization remain unverified.
+- `pnpm exec vitest run tests/unit/boards.test.ts` passed 23 board tests. Final `CI=1 pnpm test` passed all 42 tests across three files; `pnpm typecheck` passed; `pnpm lint` passed with the same seven pre-existing warnings; `git diff --check` passed. Browser, Docker SQL, and build behavior were not changed or rerun locally for this tests/documentation-only correction; CI retains all of those checks for the new head.
+
+The sequential Supabase double reports injected operation results and records calls. It does not model constraints, transactions, persisted-state integrity, or successful cross-service commits. Invocation-order assertions in defect cases identify the hazardous handler sequence; the happy-path deletion test deliberately does not prescribe that ordering. The Docker SQL runner's mutable image tag and optional network isolation remain low-priority hardening follow-ups; this correction does not change the runner.
+
 ## Coverage and evidence limits
 
 ### Route/client tests
 
 `tests/unit` invokes existing clothing/board handlers and the Supabase client helper. Coverage includes all handler authentication gates, metadata validation/trimming, owner-prefixed uploads, signed URL behavior, error responses, upload/insert cleanup, deletion failures, direct board uploads, closet snapshot copying, saved-board responses, snapshot-preserving PATCH, and cross-owner snapshot-prefix rejection.
 
-These are application contract tests. Their Supabase doubles do not evaluate RLS, actual foreign keys/triggers, or real Storage authorization. A characterization test for an existing defect does not endorse the behavior.
+These include application contract tests and explicitly labeled existing-defect characterizations. Their Supabase doubles do not evaluate RLS, actual foreign keys/triggers, real Storage authorization, or persisted-state integrity. A characterization test for an existing defect does not endorse the behavior.
 
 ### Chromium regression tests
 
