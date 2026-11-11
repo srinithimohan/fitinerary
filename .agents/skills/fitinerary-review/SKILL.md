@@ -11,3 +11,39 @@ description: Review a Fitinerary PR against its approved scope, architecture, se
 - Verify successful-original retention remains seven days and no paid infrastructure, secrets, production mutation, or later-PR scope has been introduced.
 - Return actionable findings ordered by severity, with file/line references, impact, and a concrete verification or correction. Separate existing defects from regressions and unverified assumptions. State when there are no new findings; retain material testing limitations.
 - Review is read-only unless fixes are separately requested. Do not weaken checks, merge, deploy, or start the next PR. Link to the shared architecture rather than duplicating it.
+
+## Review communication (STE)
+
+- Explain findings in clear, precise technical language.
+- Define unfamiliar concepts when necessary.
+- Explain why each finding matters and what could go wrong.
+- Use concrete examples from the changed code.
+- Distinguish confirmed defects, potential risks, and
+  unverified assumptions.
+- Do not make unsupported security claims.
+
+## Scope-specific review
+
+- Apply PR 1A-specific requirements only when reviewing
+  PR 1A or changes to its testing foundation.
+- Apply image-pipeline retention and processing requirements
+  when reviewing relevant image-pipeline changes.
+- For other PRs, use their approved scope and acceptance
+  criteria as the primary review standard.
+- Do not invent requirements unrelated to the selected PR.
+
+## Final review verdict
+
+End each review with:
+
+1. Findings ordered by severity, including file/line references.
+2. Tests and checks verified, and any verification gaps.
+3. Remaining risks or questions.
+4. Verdict:
+   - Ready for approval
+   - Changes requested
+   - Blocked pending verification
+
+Explain the verdict and identify the smallest next action.
+
+Never approve, merge, deploy, or modify files automatically.
