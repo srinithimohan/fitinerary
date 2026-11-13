@@ -250,6 +250,48 @@ export async function PATCH(
       );
     }
 
+    // Validate retained snapshot references before processing any item writes
+    // or new uploads. A snapshot remains valid after its original is deleted,
+    // so null/omitted clothing references require no lookup.
+    const snapshotClothingIds = new Set<string>();
+    for (const item of items) {
+      if (item?.snapshotPath && item.clothingItemId != null) {
+        if (
+          typeof item.clothingItemId !== 'string' ||
+          !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(item.clothingItemId)
+        ) {
+          return NextResponse.json(
+            { error: 'One of the clothing items could not be found.' },
+            { status: 400 }
+          );
+        }
+        snapshotClothingIds.add(item.clothingItemId.toLowerCase());
+      }
+    }
+
+    if (snapshotClothingIds.size > 0) {
+      const { data: ownedClothing, error: ownershipError } = await supabase
+        .from('clothing_items')
+        .select('id')
+        .in('id', [...snapshotClothingIds])
+        .eq('user_id', userId);
+
+      if (ownershipError) {
+        return NextResponse.json(
+          { error: 'Could not validate clothing references.' },
+          { status: 500 }
+        );
+      }
+
+      const ownedIds = new Set((ownedClothing ?? []).map((clothing) => clothing.id));
+      if ([...snapshotClothingIds].some((clothingId) => !ownedIds.has(clothingId))) {
+        return NextResponse.json(
+          { error: 'One of the clothing items could not be found.' },
+          { status: 400 }
+        );
+      }
+    }
+
     const {
       data: oldItems,
       error: oldItemsError,
