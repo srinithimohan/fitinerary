@@ -1,9 +1,9 @@
 ---
 name: fitinerary-ui-redesign
-description: Audit, plan, and implement high-quality fitinerary UI/UX changes with Claude Code while preserving Next.js application behavior, auth, data flow, accessibility, and responsive design.
+description: Audit, plan, and implement high-quality fitinerary UI/UX changes while preserving Next.js application behavior, auth, data flow, accessibility, and responsive design.
 ---
 
-# Fitinerary UI/UX redesign (Claude Code)
+# Fitinerary UI/UX redesign
 
 Use for visual redesigns, design-system work, frontend refactors, polish, responsiveness, and interaction quality in fitinerary. Pair with an installed `better-ui` skill when available, but do not assume external skills are installed.
 
@@ -22,7 +22,7 @@ Use for visual redesigns, design-system work, frontend refactors, polish, respon
 8. Run relevant available checks (lint, typecheck, unit, browser tests, build). Visually review the actual pages and screenshots when browser tools are available. State clearly when visual verification was not performed.
 9. Report before/after changes, exact files, design rationale, accessibility notes, tests run, any regressions or uncertain behavior, and screenshots if generated.
 
-## Communication (plain technical English)
+## Communication
 
 Use concise, concrete language. Explain why each design change improves a specific user task. Distinguish observed UI defects from personal style preferences. Show design choices and tradeoffs rather than declaring a redesign 'modern' or 'beautiful' without evidence.
 

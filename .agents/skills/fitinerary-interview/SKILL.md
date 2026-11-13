@@ -1,6 +1,6 @@
 ---
 name: fitinerary-interview
-description: Interview the fitinerary owner about a proposed feature, architecture decision, or bug before implementation; clarify requirements, teach tradeoffs, and produce testable acceptance criteria. Do not modify code.
+description: Interview the fitinerary owner about a proposed feature, architecture decision, or bug fix before implementation; clarify requirements, teach tradeoffs, and produce testable acceptance criteria. Do not modify code.
 ---
 
 # Fitinerary interview — learn before building
@@ -16,7 +16,7 @@ Use when the user wants to plan a fitinerary change or understand an engineering
 5. For each decision, define an invariant (what must always be true) and how tests would establish it.
 6. Stop at a decision memo: goal, current behavior, constraints, chosen approach, tradeoffs, risks, acceptance criteria, test plan, and unresolved questions. Do not edit files or begin implementation without approval.
 
-## Standard Technical English (STE-inspired)
+## Standard Technical English
 
 - Use short, direct sentences. Define unfamiliar terms at first use.
 - Prefer concrete nouns and active voice. Give one small fitinerary example per difficult concept.
