@@ -11,6 +11,27 @@ function docker(args, input) {
   return result.stdout;
 }
 const psql = (sql) => docker(['exec', '-i', container, 'psql', '-X', '-v', 'ON_ERROR_STOP=1', '-U', 'postgres'], sql);
+async function psqlWhenReady(sql) {
+  for (let i = 0; i < 60; i++) {
+    try {
+      return psql(sql);
+    } catch (error) {
+      const transient =
+        /connection to server|server closed the connection|the database system is starting up/i
+          .test(error.message);
+
+      if (!transient) {
+        throw error;
+      }
+
+      if (i < 59) {
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+    }
+  }
+
+  throw new Error('PostgreSQL connection unavailable after retries');
+}
 let started = false;
 try {
   // A developer may have selected a remote Docker context. Refuse it before
@@ -31,7 +52,7 @@ try {
   }
   assert.ok(ready, 'Local PostgreSQL did not become ready');
   // Owner-reported columns only; no fabricated policies, triggers, or boards.
-  psql(`CREATE SCHEMA auth;
+  await psqlWhenReady(`CREATE SCHEMA auth;
     CREATE FUNCTION auth.jwt() RETURNS jsonb LANGUAGE sql AS $$ SELECT '{}'::jsonb $$;
     CREATE TABLE public.clothing_items (
       id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
