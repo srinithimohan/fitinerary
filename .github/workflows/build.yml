@@ -24,7 +24,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: Verify explicit test partitions and preserved issuer assertions
         run: pnpm test:integration:profiles
-      - name: Required real database, Storage, and project JWT guarantees
+      - name: Required real database, Storage, and native authentication guarantees
         run: pnpm test:integration
       - name: Clean up disposable integration resources
         if: always()

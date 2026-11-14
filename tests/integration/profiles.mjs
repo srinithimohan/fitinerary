@@ -3,6 +3,7 @@
 export const required = [
   'authorization.test.mjs',
   'ownership.test.mjs',
+  'native-auth.test.mjs',
   'reference-audit.test.mjs',
 ];
 export const diagnostic = [...required, 'issuer-conformance.test.mjs'];

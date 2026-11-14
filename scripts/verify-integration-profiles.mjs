@@ -33,6 +33,6 @@ for (const file of diagnostic) {
   };
   visit(source);
 }
-assert.equal(Object.keys(expected).length, 1);
+assert.equal(Object.keys(expected).length, 2);
 assert.deepEqual(found, expected, 'An original issuer assertion was changed or omitted');
-console.log('PASS: required/full diagnostic file partitions are explicit; the original project-key issuer assertion is byte-for-byte preserved; no skipped/only/todo registrations.');
+console.log('PASS: required/full diagnostic file partitions are explicit; both original issuer assertions are byte-for-byte preserved; no skipped/only/todo registrations.');
