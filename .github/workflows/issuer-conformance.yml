@@ -24,7 +24,7 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm test:integration:profiles
-      - name: Run every supported check and the unchanged strict project-key issuer assertion
+      - name: Run every supported check and both unchanged strict issuer assertions
         run: pnpm test:integration:diagnostic
       - name: Clean up disposable diagnostic resources
         if: always()

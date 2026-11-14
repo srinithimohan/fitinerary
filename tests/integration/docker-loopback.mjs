@@ -14,7 +14,18 @@ for (let i = 0; i < args.length; i++) {
     const name = args[args.indexOf('--name') + 1];
     assert.ok(args.includes('--name') && name.startsWith('supabase_') && name.endsWith(`_${project}`), 'Unexpected port-publishing target');
     assert.match(args[i + 1], /^\d+:\d+(?:\/(?:tcp|udp))?$/, 'Unexpected port format');
-    args[++i] = `127.0.0.1:${args[i]}`;
+    let mapping = args[++i];
+    // Containerized CLI probes Kong using its internal DNS/port; host tests use
+    // the original fixed loopback port. This is port binding, not an HTTP proxy.
+    if (process.env.FITINERARY_CONTAINER_CLI === 'true' && name === `supabase_kong_${project}`) {
+      assert.equal(mapping, '8000:8000');
+      mapping = '55321:8000';
+    }
+    if (process.env.FITINERARY_CONTAINER_CLI === 'true' && name === `supabase_db_${project}`) {
+      assert.equal(mapping, '5432:5432');
+      mapping = '55322:5432';
+    }
+    args[i] = `127.0.0.1:${mapping}`;
   }
 }
 const result = spawnSync(binary, args, { env: process.env, stdio: 'inherit' });

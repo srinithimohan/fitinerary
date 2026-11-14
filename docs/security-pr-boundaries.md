@@ -1,5 +1,3 @@
-This is the integration-only review stage. The native change described below is a separate subsequent change; it is not present in this tree. Required security coverage here uses local project keys, not native Clerk evidence.
-
 # Security changes: factual review boundaries
 
 These are change inventories and verification facts, not final PR descriptions or review comments. No commit, PR, deployment, migration application to production, or merge is performed by this preparation. The older generated infrastructure PR draft is archived unchanged under ignored `.local/review/historical-infrastructure-pr-draft.md` rather than included in the proposed patches.

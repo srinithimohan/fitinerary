@@ -1,12 +1,10 @@
-Integration-only review stage: native discovery is introduced by the next stacked change. This stage has 30 required assertions and a full 31-assertion diagnostic with the original project-key issuer failure. Its project-key tokens do not establish native Clerk verification.
-
 # Local authorization integration tests
 
 Current CI organization is documented in [security-pr-boundaries.md](security-pr-boundaries.md). The required profile runs every supported guarantee, including all ownership regressions; the separate full diagnostic runs that complete profile plus both preserved issuer assertions. No test is skipped or marked expected-to-fail. The foundation-only execution records below are historical, including their original red-gate configuration.
 
 This document preserves the integration-foundation verification record. The subsequently approved ownership fix, target migration, new verification results, and independent review boundary are documented in [board-clothing-ownership-fix.md](board-clothing-ownership-fix.md).
 
-Native Clerk discovery remains a separate subsequent change. The foundation-only authentication limitations and results below are historical.
+The later native Clerk-discovery fixture, supported bootstrap configuration, authentication evidence, and remaining issuer-binding requirement are documented separately in [native-clerk-discovery-tests.md](native-clerk-discovery-tests.md). The foundation-only authentication limitations and results below are historical.
 
 On macOS or Linux, run `pnpm install --frozen-lockfile`, then `pnpm test:integration` with a local Docker daemon. No cloud project, production credentials, Clerk session, or paid service is needed. The command intentionally fails if a security assertion fails; known defects are not skipped or inverted into expected-success characterizations.
 

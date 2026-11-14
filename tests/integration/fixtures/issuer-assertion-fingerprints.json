@@ -1,3 +1,4 @@
 {
-  "Invalid authentication was accepted; native Clerk verification is not established": "b0d31079941a0f236bed77ec48666a3c6bbfb599699d3b06996cf88be2ec21b1"
+  "Invalid authentication was accepted; native Clerk verification is not established": "b0d31079941a0f236bed77ec48666a3c6bbfb599699d3b06996cf88be2ec21b1",
+  "Pinned native discovery trusts keys without independently enforcing issuer claims": "692503e2ccd04dc2a8267977c7a64c9922423027d3501c580e8e5b8e5dd11dbe"
 }
