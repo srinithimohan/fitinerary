@@ -1,5 +1,7 @@
 # PR 1A verification and handoff
 
+This is the historical PR 1A verification record. The subsequently approved real-service authorization test work, owner-supplied policy evidence, authentication limitations, and current checks are documented in [authorization-integration-tests.md](authorization-integration-tests.md).
+
 Scope: engineering foundation only. No application source, production database/policy/Storage configuration, queues, lifecycle migrations, worker deployment, or paid infrastructure is changed. `AGENTS.md` and existing skills are preserved.
 
 ## Reproduce

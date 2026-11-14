@@ -1,0 +1,40 @@
+name: Issuer conformance diagnostic (non-required)
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  issuer-conformance:
+    name: Issuer conformance diagnostic - full suite
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm test:integration:profiles
+      - name: Run every supported check and the unchanged strict project-key issuer assertion
+        run: pnpm test:integration:diagnostic
+      - name: Clean up disposable diagnostic resources
+        if: always()
+        run: node scripts/test-integration.mjs --cleanup
+      - name: Upload sanitized full diagnostic results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: issuer-conformance-results
+          path: .local/integration-diagnostic-tests.log
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 7

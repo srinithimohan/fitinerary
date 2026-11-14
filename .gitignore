@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules
+/.pnpm-store/
 /.pnp
 .pnp.*
 .yarn/*
@@ -11,6 +12,7 @@
 !.yarn/versions
 
 # testing
+/.local/
 /coverage
 /playwright-report/
 /test-results/

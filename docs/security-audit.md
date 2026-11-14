@@ -2,6 +2,8 @@
 
 Scope: repository review, owner-reported clothing columns and owner-verified configuration, mocked route tests, and safe local verification. The implementing agent did not contact production services. This is not a completed audit of deployed authorization.
 
+2026-11-09 update: the owner supplied a local, Git-excluded combined catalog export. Its 11 JSON sections contain 231 entries, including all 16 policies and the directly referenced helpers. Sanitized test fixtures now reproduce those definitions; the earlier statements below about unavailable exports describe the PR 1A evidence at the time. Static review confirms text-subject compatibility and identifies a cross-owner clothing-reference gap in board-item policies. Native Clerk verification, internal Storage dependency parity, and actual integration results are tracked separately in [authorization integration testing](authorization-integration-tests.md). This update does not establish a completed production security audit or change any production policy.
+
 ## Evidence matrix
 
 | Boundary | Evidence | Conclusion / missing evidence |
