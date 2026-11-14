@@ -1,0 +1,971 @@
+{
+  "policies": [
+    {
+      "cmd": "INSERT",
+      "qual": null,
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "board_items",
+      "permissive": "PERMISSIVE",
+      "policyname": "Users can add items to their own boards",
+      "schemaname": "public",
+      "with_check": "(EXISTS ( SELECT 1\n   FROM boards\n  WHERE ((boards.id = board_items.board_id) AND (boards.user_id = ( SELECT (auth.jwt() ->> 'sub'::text))))))"
+    },
+    {
+      "cmd": "DELETE",
+      "qual": "(EXISTS ( SELECT 1\n   FROM boards\n  WHERE ((boards.id = board_items.board_id) AND (boards.user_id = ( SELECT (auth.jwt() ->> 'sub'::text))))))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "board_items",
+      "permissive": "PERMISSIVE",
+      "policyname": "Users can delete items from their own boards",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "UPDATE",
+      "qual": "(EXISTS ( SELECT 1\n   FROM boards\n  WHERE ((boards.id = board_items.board_id) AND (boards.user_id = ( SELECT (auth.jwt() ->> 'sub'::text))))))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "board_items",
+      "permissive": "PERMISSIVE",
+      "policyname": "Users can update items on their own boards",
+      "schemaname": "public",
+      "with_check": "(EXISTS ( SELECT 1\n   FROM boards\n  WHERE ((boards.id = board_items.board_id) AND (boards.user_id = ( SELECT (auth.jwt() ->> 'sub'::text))))))"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(EXISTS ( SELECT 1\n   FROM boards\n  WHERE ((boards.id = board_items.board_id) AND (boards.user_id = ( SELECT (auth.jwt() ->> 'sub'::text))))))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "board_items",
+      "permissive": "PERMISSIVE",
+      "policyname": "Users can view items on their own boards",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "INSERT",
+      "qual": null,
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "boards",
+      "permissive": "PERMISSIVE",
+      "policyname": "Users can create their own boards",
+      "schemaname": "public",
+      "with_check": "(( SELECT (auth.jwt() ->> 'sub'::text)) = user_id)"
+    },
+    {
+      "cmd": "DELETE",
+      "qual": "(( SELECT (auth.jwt() ->> 'sub'::text)) = user_id)",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "boards",
+      "permissive": "PERMISSIVE",
+      "policyname": "Users can delete their own boards",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "UPDATE",
+      "qual": "(( SELECT (auth.jwt() ->> 'sub'::text)) = user_id)",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "boards",
+      "permissive": "PERMISSIVE",
+      "policyname": "Users can update their own boards",
+      "schemaname": "public",
+      "with_check": "(( SELECT (auth.jwt() ->> 'sub'::text)) = user_id)"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(( SELECT (auth.jwt() ->> 'sub'::text)) = user_id)",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "boards",
+      "permissive": "PERMISSIVE",
+      "policyname": "Users can view their own boards",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "INSERT",
+      "qual": null,
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "clothing_items",
+      "permissive": "PERMISSIVE",
+      "policyname": "Users can create their own clothing",
+      "schemaname": "public",
+      "with_check": "(( SELECT (auth.jwt() ->> 'sub'::text)) = user_id)"
+    },
+    {
+      "cmd": "DELETE",
+      "qual": "(( SELECT (auth.jwt() ->> 'sub'::text)) = user_id)",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "clothing_items",
+      "permissive": "PERMISSIVE",
+      "policyname": "Users can delete their own clothing",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "UPDATE",
+      "qual": "(( SELECT (auth.jwt() ->> 'sub'::text)) = user_id)",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "clothing_items",
+      "permissive": "PERMISSIVE",
+      "policyname": "Users can update their own clothing",
+      "schemaname": "public",
+      "with_check": "(( SELECT (auth.jwt() ->> 'sub'::text)) = user_id)"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(( SELECT (auth.jwt() ->> 'sub'::text)) = user_id)",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "clothing_items",
+      "permissive": "PERMISSIVE",
+      "policyname": "Users can view their own clothing",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "DELETE",
+      "qual": "((bucket_id = 'clothing-images'::text) AND ((storage.foldername(name))[1] = ( SELECT (auth.jwt() ->> 'sub'::text))))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "objects",
+      "permissive": "PERMISSIVE",
+      "policyname": "Users can delete their own clothing images",
+      "schemaname": "storage",
+      "with_check": null
+    },
+    {
+      "cmd": "UPDATE",
+      "qual": "((bucket_id = 'clothing-images'::text) AND ((storage.foldername(name))[1] = ( SELECT (auth.jwt() ->> 'sub'::text))))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "objects",
+      "permissive": "PERMISSIVE",
+      "policyname": "Users can update their own clothing images",
+      "schemaname": "storage",
+      "with_check": "((bucket_id = 'clothing-images'::text) AND ((storage.foldername(name))[1] = ( SELECT (auth.jwt() ->> 'sub'::text))))"
+    },
+    {
+      "cmd": "INSERT",
+      "qual": null,
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "objects",
+      "permissive": "PERMISSIVE",
+      "policyname": "Users can upload their own clothing images",
+      "schemaname": "storage",
+      "with_check": "((bucket_id = 'clothing-images'::text) AND ((storage.foldername(name))[1] = ( SELECT (auth.jwt() ->> 'sub'::text))))"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "((bucket_id = 'clothing-images'::text) AND ((storage.foldername(name))[1] = ( SELECT (auth.jwt() ->> 'sub'::text))))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "objects",
+      "permissive": "PERMISSIVE",
+      "policyname": "Users can view their own clothing images",
+      "schemaname": "storage",
+      "with_check": null
+    }
+  ],
+  "helpers": [
+    {
+      "kind": "function_definition",
+      "owner": "supabase_auth_admin",
+      "grants": [
+        "=X/supabase_auth_admin",
+        "postgres=X/supabase_auth_admin",
+        "supabase_auth_admin=X/supabase_auth_admin",
+        "dashboard_user=X/supabase_auth_admin"
+      ],
+      "arguments": "",
+      "definition": "CREATE OR REPLACE FUNCTION auth.jwt()\n RETURNS jsonb\n LANGUAGE sql\n STABLE\nAS $function$\n  select \n    coalesce(\n        nullif(current_setting('request.jwt.claim', true), ''),\n        nullif(current_setting('request.jwt.claims', true), '')\n    )::jsonb\n$function$\n",
+      "schema_name": "auth",
+      "configuration": null,
+      "function_name": "jwt",
+      "security_definer": false
+    },
+    {
+      "kind": "function_definition",
+      "owner": "supabase_storage_admin",
+      "grants": null,
+      "arguments": "name text",
+      "definition": "CREATE OR REPLACE FUNCTION storage.foldername(name text)\n RETURNS text[]\n LANGUAGE plpgsql\n IMMUTABLE\nAS $function$\nDECLARE\n    _parts text[];\nBEGIN\n    -- Split on \"/\" to get path segments\n    SELECT string_to_array(name, '/') INTO _parts;\n    -- Return everything except the last segment\n    RETURN _parts[1 : array_length(_parts,1) - 1];\nEND\n$function$\n",
+      "schema_name": "storage",
+      "configuration": null,
+      "function_name": "foldername",
+      "security_definer": false
+    }
+  ],
+  "columns": [
+    {
+      "udt_name": "uuid",
+      "data_type": "uuid",
+      "table_name": "board_items",
+      "udt_schema": "pg_catalog",
+      "column_name": "id",
+      "is_identity": "NO",
+      "is_nullable": "NO",
+      "is_generated": "NEVER",
+      "table_schema": "public",
+      "numeric_scale": null,
+      "column_default": "gen_random_uuid()",
+      "ordinal_position": 1,
+      "numeric_precision": null,
+      "datetime_precision": null,
+      "identity_generation": null,
+      "generation_expression": null,
+      "character_maximum_length": null
+    },
+    {
+      "udt_name": "uuid",
+      "data_type": "uuid",
+      "table_name": "board_items",
+      "udt_schema": "pg_catalog",
+      "column_name": "board_id",
+      "is_identity": "NO",
+      "is_nullable": "NO",
+      "is_generated": "NEVER",
+      "table_schema": "public",
+      "numeric_scale": null,
+      "column_default": null,
+      "ordinal_position": 2,
+      "numeric_precision": null,
+      "datetime_precision": null,
+      "identity_generation": null,
+      "generation_expression": null,
+      "character_maximum_length": null
+    },
+    {
+      "udt_name": "int2",
+      "data_type": "smallint",
+      "table_name": "board_items",
+      "udt_schema": "pg_catalog",
+      "column_name": "position",
+      "is_identity": "NO",
+      "is_nullable": "NO",
+      "is_generated": "NEVER",
+      "table_schema": "public",
+      "numeric_scale": 0,
+      "column_default": null,
+      "ordinal_position": 3,
+      "numeric_precision": 16,
+      "datetime_precision": null,
+      "identity_generation": null,
+      "generation_expression": null,
+      "character_maximum_length": null
+    },
+    {
+      "udt_name": "uuid",
+      "data_type": "uuid",
+      "table_name": "board_items",
+      "udt_schema": "pg_catalog",
+      "column_name": "clothing_item_id",
+      "is_identity": "NO",
+      "is_nullable": "YES",
+      "is_generated": "NEVER",
+      "table_schema": "public",
+      "numeric_scale": null,
+      "column_default": null,
+      "ordinal_position": 4,
+      "numeric_precision": null,
+      "datetime_precision": null,
+      "identity_generation": null,
+      "generation_expression": null,
+      "character_maximum_length": null
+    },
+    {
+      "udt_name": "text",
+      "data_type": "text",
+      "table_name": "board_items",
+      "udt_schema": "pg_catalog",
+      "column_name": "image_path_snapshot",
+      "is_identity": "NO",
+      "is_nullable": "NO",
+      "is_generated": "NEVER",
+      "table_schema": "public",
+      "numeric_scale": null,
+      "column_default": null,
+      "ordinal_position": 5,
+      "numeric_precision": null,
+      "datetime_precision": null,
+      "identity_generation": null,
+      "generation_expression": null,
+      "character_maximum_length": null
+    },
+    {
+      "udt_name": "text",
+      "data_type": "text",
+      "table_name": "board_items",
+      "udt_schema": "pg_catalog",
+      "column_name": "name_snapshot",
+      "is_identity": "NO",
+      "is_nullable": "YES",
+      "is_generated": "NEVER",
+      "table_schema": "public",
+      "numeric_scale": null,
+      "column_default": null,
+      "ordinal_position": 6,
+      "numeric_precision": null,
+      "datetime_precision": null,
+      "identity_generation": null,
+      "generation_expression": null,
+      "character_maximum_length": null
+    },
+    {
+      "udt_name": "text",
+      "data_type": "text",
+      "table_name": "board_items",
+      "udt_schema": "pg_catalog",
+      "column_name": "category_snapshot",
+      "is_identity": "NO",
+      "is_nullable": "YES",
+      "is_generated": "NEVER",
+      "table_schema": "public",
+      "numeric_scale": null,
+      "column_default": null,
+      "ordinal_position": 7,
+      "numeric_precision": null,
+      "datetime_precision": null,
+      "identity_generation": null,
+      "generation_expression": null,
+      "character_maximum_length": null
+    },
+    {
+      "udt_name": "timestamptz",
+      "data_type": "timestamp with time zone",
+      "table_name": "board_items",
+      "udt_schema": "pg_catalog",
+      "column_name": "created_at",
+      "is_identity": "NO",
+      "is_nullable": "NO",
+      "is_generated": "NEVER",
+      "table_schema": "public",
+      "numeric_scale": null,
+      "column_default": "now()",
+      "ordinal_position": 8,
+      "numeric_precision": null,
+      "datetime_precision": 6,
+      "identity_generation": null,
+      "generation_expression": null,
+      "character_maximum_length": null
+    },
+    {
+      "udt_name": "uuid",
+      "data_type": "uuid",
+      "table_name": "boards",
+      "udt_schema": "pg_catalog",
+      "column_name": "id",
+      "is_identity": "NO",
+      "is_nullable": "NO",
+      "is_generated": "NEVER",
+      "table_schema": "public",
+      "numeric_scale": null,
+      "column_default": "gen_random_uuid()",
+      "ordinal_position": 1,
+      "numeric_precision": null,
+      "datetime_precision": null,
+      "identity_generation": null,
+      "generation_expression": null,
+      "character_maximum_length": null
+    },
+    {
+      "udt_name": "text",
+      "data_type": "text",
+      "table_name": "boards",
+      "udt_schema": "pg_catalog",
+      "column_name": "user_id",
+      "is_identity": "NO",
+      "is_nullable": "NO",
+      "is_generated": "NEVER",
+      "table_schema": "public",
+      "numeric_scale": null,
+      "column_default": "(auth.jwt() ->> 'sub'::text)",
+      "ordinal_position": 2,
+      "numeric_precision": null,
+      "datetime_precision": null,
+      "identity_generation": null,
+      "generation_expression": null,
+      "character_maximum_length": null
+    },
+    {
+      "udt_name": "text",
+      "data_type": "text",
+      "table_name": "boards",
+      "udt_schema": "pg_catalog",
+      "column_name": "name",
+      "is_identity": "NO",
+      "is_nullable": "NO",
+      "is_generated": "NEVER",
+      "table_schema": "public",
+      "numeric_scale": null,
+      "column_default": "'Untitled Board'::text",
+      "ordinal_position": 3,
+      "numeric_precision": null,
+      "datetime_precision": null,
+      "identity_generation": null,
+      "generation_expression": null,
+      "character_maximum_length": null
+    },
+    {
+      "udt_name": "bool",
+      "data_type": "boolean",
+      "table_name": "boards",
+      "udt_schema": "pg_catalog",
+      "column_name": "is_public",
+      "is_identity": "NO",
+      "is_nullable": "NO",
+      "is_generated": "NEVER",
+      "table_schema": "public",
+      "numeric_scale": null,
+      "column_default": "false",
+      "ordinal_position": 4,
+      "numeric_precision": null,
+      "datetime_precision": null,
+      "identity_generation": null,
+      "generation_expression": null,
+      "character_maximum_length": null
+    },
+    {
+      "udt_name": "timestamptz",
+      "data_type": "timestamp with time zone",
+      "table_name": "boards",
+      "udt_schema": "pg_catalog",
+      "column_name": "created_at",
+      "is_identity": "NO",
+      "is_nullable": "NO",
+      "is_generated": "NEVER",
+      "table_schema": "public",
+      "numeric_scale": null,
+      "column_default": "now()",
+      "ordinal_position": 5,
+      "numeric_precision": null,
+      "datetime_precision": 6,
+      "identity_generation": null,
+      "generation_expression": null,
+      "character_maximum_length": null
+    },
+    {
+      "udt_name": "timestamptz",
+      "data_type": "timestamp with time zone",
+      "table_name": "boards",
+      "udt_schema": "pg_catalog",
+      "column_name": "updated_at",
+      "is_identity": "NO",
+      "is_nullable": "NO",
+      "is_generated": "NEVER",
+      "table_schema": "public",
+      "numeric_scale": null,
+      "column_default": "now()",
+      "ordinal_position": 6,
+      "numeric_precision": null,
+      "datetime_precision": 6,
+      "identity_generation": null,
+      "generation_expression": null,
+      "character_maximum_length": null
+    },
+    {
+      "udt_name": "uuid",
+      "data_type": "uuid",
+      "table_name": "clothing_items",
+      "udt_schema": "pg_catalog",
+      "column_name": "id",
+      "is_identity": "NO",
+      "is_nullable": "NO",
+      "is_generated": "NEVER",
+      "table_schema": "public",
+      "numeric_scale": null,
+      "column_default": "gen_random_uuid()",
+      "ordinal_position": 1,
+      "numeric_precision": null,
+      "datetime_precision": null,
+      "identity_generation": null,
+      "generation_expression": null,
+      "character_maximum_length": null
+    },
+    {
+      "udt_name": "text",
+      "data_type": "text",
+      "table_name": "clothing_items",
+      "udt_schema": "pg_catalog",
+      "column_name": "user_id",
+      "is_identity": "NO",
+      "is_nullable": "NO",
+      "is_generated": "NEVER",
+      "table_schema": "public",
+      "numeric_scale": null,
+      "column_default": "(auth.jwt() ->> 'sub'::text)",
+      "ordinal_position": 2,
+      "numeric_precision": null,
+      "datetime_precision": null,
+      "identity_generation": null,
+      "generation_expression": null,
+      "character_maximum_length": null
+    },
+    {
+      "udt_name": "text",
+      "data_type": "text",
+      "table_name": "clothing_items",
+      "udt_schema": "pg_catalog",
+      "column_name": "name",
+      "is_identity": "NO",
+      "is_nullable": "NO",
+      "is_generated": "NEVER",
+      "table_schema": "public",
+      "numeric_scale": null,
+      "column_default": null,
+      "ordinal_position": 3,
+      "numeric_precision": null,
+      "datetime_precision": null,
+      "identity_generation": null,
+      "generation_expression": null,
+      "character_maximum_length": null
+    },
+    {
+      "udt_name": "text",
+      "data_type": "text",
+      "table_name": "clothing_items",
+      "udt_schema": "pg_catalog",
+      "column_name": "category",
+      "is_identity": "NO",
+      "is_nullable": "NO",
+      "is_generated": "NEVER",
+      "table_schema": "public",
+      "numeric_scale": null,
+      "column_default": null,
+      "ordinal_position": 4,
+      "numeric_precision": null,
+      "datetime_precision": null,
+      "identity_generation": null,
+      "generation_expression": null,
+      "character_maximum_length": null
+    },
+    {
+      "udt_name": "text",
+      "data_type": "text",
+      "table_name": "clothing_items",
+      "udt_schema": "pg_catalog",
+      "column_name": "image_path",
+      "is_identity": "NO",
+      "is_nullable": "NO",
+      "is_generated": "NEVER",
+      "table_schema": "public",
+      "numeric_scale": null,
+      "column_default": null,
+      "ordinal_position": 5,
+      "numeric_precision": null,
+      "datetime_precision": null,
+      "identity_generation": null,
+      "generation_expression": null,
+      "character_maximum_length": null
+    },
+    {
+      "udt_name": "timestamptz",
+      "data_type": "timestamp with time zone",
+      "table_name": "clothing_items",
+      "udt_schema": "pg_catalog",
+      "column_name": "created_at",
+      "is_identity": "NO",
+      "is_nullable": "NO",
+      "is_generated": "NEVER",
+      "table_schema": "public",
+      "numeric_scale": null,
+      "column_default": "now()",
+      "ordinal_position": 6,
+      "numeric_precision": null,
+      "datetime_precision": 6,
+      "identity_generation": null,
+      "generation_expression": null,
+      "character_maximum_length": null
+    },
+    {
+      "udt_name": "timestamptz",
+      "data_type": "timestamp with time zone",
+      "table_name": "clothing_items",
+      "udt_schema": "pg_catalog",
+      "column_name": "updated_at",
+      "is_identity": "NO",
+      "is_nullable": "NO",
+      "is_generated": "NEVER",
+      "table_schema": "public",
+      "numeric_scale": null,
+      "column_default": "now()",
+      "ordinal_position": 7,
+      "numeric_precision": null,
+      "datetime_precision": 6,
+      "identity_generation": null,
+      "generation_expression": null,
+      "character_maximum_length": null
+    }
+  ],
+  "constraints": [
+    {
+      "deferrable": false,
+      "definition": "FOREIGN KEY (board_id) REFERENCES boards(id) ON DELETE CASCADE",
+      "table_name": "board_items",
+      "schema_name": "public",
+      "constraint_name": "board_items_board_id_fkey",
+      "constraint_type": "f",
+      "initially_deferred": false
+    },
+    {
+      "deferrable": false,
+      "definition": "UNIQUE (board_id, \"position\")",
+      "table_name": "board_items",
+      "schema_name": "public",
+      "constraint_name": "board_items_board_id_position_key",
+      "constraint_type": "u",
+      "initially_deferred": false
+    },
+    {
+      "deferrable": false,
+      "definition": "FOREIGN KEY (clothing_item_id) REFERENCES clothing_items(id) ON DELETE SET NULL",
+      "table_name": "board_items",
+      "schema_name": "public",
+      "constraint_name": "board_items_clothing_item_id_fkey",
+      "constraint_type": "f",
+      "initially_deferred": false
+    },
+    {
+      "deferrable": false,
+      "definition": "PRIMARY KEY (id)",
+      "table_name": "board_items",
+      "schema_name": "public",
+      "constraint_name": "board_items_pkey",
+      "constraint_type": "p",
+      "initially_deferred": false
+    },
+    {
+      "deferrable": false,
+      "definition": "CHECK (((\"position\" >= 0) AND (\"position\" <= 8)))",
+      "table_name": "board_items",
+      "schema_name": "public",
+      "constraint_name": "board_items_position_check",
+      "constraint_type": "c",
+      "initially_deferred": false
+    },
+    {
+      "deferrable": false,
+      "definition": "PRIMARY KEY (id)",
+      "table_name": "boards",
+      "schema_name": "public",
+      "constraint_name": "boards_pkey",
+      "constraint_type": "p",
+      "initially_deferred": false
+    },
+    {
+      "deferrable": false,
+      "definition": "PRIMARY KEY (id)",
+      "table_name": "clothing_items",
+      "schema_name": "public",
+      "constraint_name": "clothing_items_pkey",
+      "constraint_type": "p",
+      "initially_deferred": false
+    }
+  ],
+  "indexes": [
+    {
+      "indexdef": "CREATE UNIQUE INDEX board_items_board_id_position_key ON public.board_items USING btree (board_id, \"position\")",
+      "indexname": "board_items_board_id_position_key",
+      "tablename": "board_items",
+      "schemaname": "public"
+    },
+    {
+      "indexdef": "CREATE UNIQUE INDEX board_items_pkey ON public.board_items USING btree (id)",
+      "indexname": "board_items_pkey",
+      "tablename": "board_items",
+      "schemaname": "public"
+    },
+    {
+      "indexdef": "CREATE UNIQUE INDEX boards_pkey ON public.boards USING btree (id)",
+      "indexname": "boards_pkey",
+      "tablename": "boards",
+      "schemaname": "public"
+    },
+    {
+      "indexdef": "CREATE UNIQUE INDEX clothing_items_pkey ON public.clothing_items USING btree (id)",
+      "indexname": "clothing_items_pkey",
+      "tablename": "clothing_items",
+      "schemaname": "public"
+    }
+  ],
+  "roles": [
+    {
+      "kind": "database_role",
+      "rolname": "anon",
+      "rolsuper": false,
+      "rolinherit": true,
+      "rolcanlogin": false,
+      "rolbypassrls": false
+    },
+    {
+      "kind": "database_role",
+      "rolname": "authenticated",
+      "rolsuper": false,
+      "rolinherit": true,
+      "rolcanlogin": false,
+      "rolbypassrls": false
+    },
+    {
+      "kind": "database_role",
+      "rolname": "authenticator",
+      "rolsuper": false,
+      "rolinherit": false,
+      "rolcanlogin": true,
+      "rolbypassrls": false
+    },
+    {
+      "kind": "database_role",
+      "rolname": "service_role",
+      "rolsuper": false,
+      "rolinherit": true,
+      "rolcanlogin": false,
+      "rolbypassrls": true
+    }
+  ],
+  "ownership": [
+    {
+      "owner": "postgres",
+      "table_acl": [
+        "postgres=arwdDxtm/postgres",
+        "anon=arwdDxtm/postgres",
+        "authenticated=arwdDxtm/postgres",
+        "service_role=arwdDxtm/postgres"
+      ],
+      "rls_forced": false,
+      "table_name": "board_items",
+      "rls_enabled": true,
+      "schema_name": "public"
+    },
+    {
+      "owner": "postgres",
+      "table_acl": [
+        "postgres=arwdDxtm/postgres",
+        "anon=arwdDxtm/postgres",
+        "authenticated=arwdDxtm/postgres",
+        "service_role=arwdDxtm/postgres"
+      ],
+      "rls_forced": false,
+      "table_name": "boards",
+      "rls_enabled": true,
+      "schema_name": "public"
+    },
+    {
+      "owner": "postgres",
+      "table_acl": [
+        "postgres=arwdDxtm/postgres",
+        "anon=arwdDxtm/postgres",
+        "authenticated=arwdDxtm/postgres",
+        "service_role=arwdDxtm/postgres"
+      ],
+      "rls_forced": false,
+      "table_name": "clothing_items",
+      "rls_enabled": true,
+      "schema_name": "public"
+    },
+    {
+      "owner": "supabase_storage_admin",
+      "table_acl": [
+        "supabase_storage_admin=a*r*w*d*D*x*t*m*/supabase_storage_admin",
+        "service_role=arwdDxtm/supabase_storage_admin",
+        "authenticated=arwd/supabase_storage_admin",
+        "anon=arwd/supabase_storage_admin",
+        "postgres=a*r*w*d*D*x*t*m*/supabase_storage_admin"
+      ],
+      "rls_forced": false,
+      "table_name": "buckets",
+      "rls_enabled": true,
+      "schema_name": "storage"
+    },
+    {
+      "owner": "supabase_storage_admin",
+      "table_acl": [
+        "supabase_storage_admin=a*r*w*d*D*x*t*m*/supabase_storage_admin",
+        "service_role=arwdDxtm/supabase_storage_admin",
+        "authenticated=arwd/supabase_storage_admin",
+        "anon=arwd/supabase_storage_admin",
+        "postgres=a*r*w*d*D*x*t*m*/supabase_storage_admin"
+      ],
+      "rls_forced": false,
+      "table_name": "objects",
+      "rls_enabled": true,
+      "schema_name": "storage"
+    }
+  ],
+  "schemaPrivileges": [
+    {
+      "kind": "schema_privileges",
+      "owner": "supabase_admin",
+      "anon_usage": true,
+      "schema_acl": [
+        "supabase_admin=UC/supabase_admin",
+        "anon=U/supabase_admin",
+        "authenticated=U/supabase_admin",
+        "service_role=U/supabase_admin",
+        "supabase_auth_admin=UC/supabase_admin",
+        "dashboard_user=UC/supabase_admin",
+        "postgres=U/supabase_admin"
+      ],
+      "schema_name": "auth",
+      "service_role_usage": true,
+      "authenticated_usage": true
+    },
+    {
+      "kind": "schema_privileges",
+      "owner": "pg_database_owner",
+      "anon_usage": true,
+      "schema_acl": [
+        "pg_database_owner=UC/pg_database_owner",
+        "=U/pg_database_owner",
+        "postgres=U/pg_database_owner",
+        "anon=U/pg_database_owner",
+        "authenticated=U/pg_database_owner",
+        "service_role=U/pg_database_owner"
+      ],
+      "schema_name": "public",
+      "service_role_usage": true,
+      "authenticated_usage": true
+    },
+    {
+      "kind": "schema_privileges",
+      "owner": "supabase_admin",
+      "anon_usage": true,
+      "schema_acl": [
+        "supabase_admin=UC/supabase_admin",
+        "postgres=U*/supabase_admin",
+        "anon=U/supabase_admin",
+        "authenticated=U/supabase_admin",
+        "service_role=U/supabase_admin",
+        "supabase_storage_admin=U*C*/supabase_admin",
+        "dashboard_user=UC/supabase_admin"
+      ],
+      "schema_name": "storage",
+      "service_role_usage": true,
+      "authenticated_usage": true
+    }
+  ],
+  "bucket": {
+    "id": "clothing-images",
+    "name": "clothing-images",
+    "public": false,
+    "file_size_limit": 5242880,
+    "allowed_mime_types": [
+      "image/*"
+    ]
+  },
+  "triggers": [
+    {
+      "kind": "trigger",
+      "definition": "CREATE TRIGGER enforce_bucket_name_length_trigger BEFORE INSERT OR UPDATE OF name ON storage.buckets FOR EACH ROW EXECUTE FUNCTION storage.enforce_bucket_name_length()",
+      "table_name": "buckets",
+      "schema_name": "storage",
+      "trigger_name": "enforce_bucket_name_length_trigger",
+      "trigger_function": "CREATE OR REPLACE FUNCTION storage.enforce_bucket_name_length()\n RETURNS trigger\n LANGUAGE plpgsql\nAS $function$\nbegin\n    if length(new.name) > 100 then\n        raise exception 'bucket name \"%\" is too long (% characters). Max is 100.', new.name, length(new.name);\n    end if;\n    return new;\nend;\n$function$\n"
+    },
+    {
+      "kind": "trigger",
+      "definition": "CREATE TRIGGER enforce_versioning_status_transition BEFORE UPDATE OF versioning_status ON storage.buckets FOR EACH ROW EXECUTE FUNCTION storage.enforce_versioning_status_transition()",
+      "table_name": "buckets",
+      "schema_name": "storage",
+      "trigger_name": "enforce_versioning_status_transition",
+      "trigger_function": "CREATE OR REPLACE FUNCTION storage.enforce_versioning_status_transition()\n RETURNS trigger\n LANGUAGE plpgsql\nAS $function$\nBEGIN\n    IF NEW.versioning_status = OLD.versioning_status THEN\n        RETURN NEW;\n    END IF;\n\n    IF NEW.versioning_status = 'DISABLED' OR\n       (OLD.versioning_status = 'DISABLED' AND NEW.versioning_status = 'SUSPENDED') THEN\n        RAISE EXCEPTION 'Cannot transition bucket versioning status from % to %',\n            OLD.versioning_status, NEW.versioning_status;\n    END IF;\n\n    RETURN NEW;\nEND;\n$function$\n"
+    },
+    {
+      "kind": "trigger",
+      "definition": "CREATE TRIGGER protect_active_lifecycle_states BEFORE DELETE ON storage.buckets FOR EACH ROW EXECUTE FUNCTION storage.protect_active_lifecycle_states()",
+      "table_name": "buckets",
+      "schema_name": "storage",
+      "trigger_name": "protect_active_lifecycle_states",
+      "trigger_function": "CREATE OR REPLACE FUNCTION storage.protect_active_lifecycle_states()\n RETURNS trigger\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'pg_catalog'\nAS $function$\nBEGIN\n    IF EXISTS (\n        SELECT 1 FROM storage.bucket_lifecycle_states\n        WHERE bucket_id = OLD.id\n          AND NOT (\n              continuation IS NULL\n              OR (continuation @> '{\"continuationVersion\": 1}' AND continuation #> '{batch,inFlight}' IS NULL)\n          )\n    ) THEN\n        RAISE EXCEPTION 'update or delete on table \"buckets\" violates foreign key constraint \"bucket_lifecycle_states_bucket_id_fkey\" on table \"bucket_lifecycle_states\"'\n            USING ERRCODE = 'foreign_key_violation',\n                  DETAIL = format('Key (id)=(%s) is still referenced from table \"bucket_lifecycle_states\".', OLD.id),\n                  SCHEMA = 'storage',\n                  TABLE = 'bucket_lifecycle_states',\n                  CONSTRAINT = 'bucket_lifecycle_states_bucket_id_fkey';\n    END IF;\n    RETURN OLD;\nEND;\n$function$\n"
+    },
+    {
+      "kind": "trigger",
+      "definition": "CREATE TRIGGER protect_bucket_control_insert BEFORE INSERT ON storage.buckets FOR EACH ROW EXECUTE FUNCTION storage.protect_bucket_control_columns('service_role')",
+      "table_name": "buckets",
+      "schema_name": "storage",
+      "trigger_name": "protect_bucket_control_insert",
+      "trigger_function": "CREATE OR REPLACE FUNCTION storage.protect_bucket_control_columns()\n RETURNS trigger\n LANGUAGE plpgsql\n SET search_path TO 'pg_catalog'\nAS $function$\nDECLARE\n  configuration_changed boolean;\nBEGIN\n  IF TG_OP = 'INSERT' THEN\n    IF NEW.lifecycle_configuration IS NOT NULL\n       OR NEW.lifecycle_configuration_generation IS NOT NULL THEN\n      IF NOT pg_has_role(current_user, TG_ARGV[0], 'MEMBER') THEN\n        RAISE EXCEPTION 'only members of the configured storage service role may insert lifecycle policy state'\n          USING ERRCODE = '42501',\n                HINT = format(\n                  'Insert with both lifecycle columns NULL and configure lifecycle through the Storage API afterward, or insert as a member of %I.',\n                  TG_ARGV[0]\n                );\n      END IF;\n    END IF;\n\n    RETURN NEW;\n  END IF;\n\n  configuration_changed =\n    OLD.lifecycle_configuration IS DISTINCT FROM NEW.lifecycle_configuration\n    OR OLD.lifecycle_configuration_generation IS DISTINCT FROM NEW.lifecycle_configuration_generation;\n\n  IF NOT configuration_changed THEN\n    RETURN NEW;\n  END IF;\n\n  IF NEW.type IS DISTINCT FROM 'STANDARD' THEN\n    RAISE EXCEPTION 'bucket versioning and lifecycle controls require a Standard bucket'\n      USING ERRCODE = '0A000';\n  END IF;\n\n  IF NEW.lifecycle_configuration IS NULL\n     AND NEW.lifecycle_configuration_generation IS NULL THEN\n    RETURN NEW;\n  END IF;\n\n  IF NEW.lifecycle_configuration IS NULL\n     OR NEW.lifecycle_configuration_generation IS NULL\n     OR OLD.lifecycle_configuration IS NOT DISTINCT FROM NEW.lifecycle_configuration\n     OR OLD.lifecycle_configuration_generation IS NOT DISTINCT FROM NEW.lifecycle_configuration_generation THEN\n    RAISE EXCEPTION 'a changed lifecycle policy requires a new non-null generation'\n      USING ERRCODE = '22023';\n  END IF;\n\n  RETURN NEW;\nEND;\n$function$\n"
+    },
+    {
+      "kind": "trigger",
+      "definition": "CREATE TRIGGER protect_bucket_control_update BEFORE UPDATE OF lifecycle_configuration, lifecycle_configuration_generation ON storage.buckets FOR EACH ROW EXECUTE FUNCTION storage.protect_bucket_control_columns()",
+      "table_name": "buckets",
+      "schema_name": "storage",
+      "trigger_name": "protect_bucket_control_update",
+      "trigger_function": "CREATE OR REPLACE FUNCTION storage.protect_bucket_control_columns()\n RETURNS trigger\n LANGUAGE plpgsql\n SET search_path TO 'pg_catalog'\nAS $function$\nDECLARE\n  configuration_changed boolean;\nBEGIN\n  IF TG_OP = 'INSERT' THEN\n    IF NEW.lifecycle_configuration IS NOT NULL\n       OR NEW.lifecycle_configuration_generation IS NOT NULL THEN\n      IF NOT pg_has_role(current_user, TG_ARGV[0], 'MEMBER') THEN\n        RAISE EXCEPTION 'only members of the configured storage service role may insert lifecycle policy state'\n          USING ERRCODE = '42501',\n                HINT = format(\n                  'Insert with both lifecycle columns NULL and configure lifecycle through the Storage API afterward, or insert as a member of %I.',\n                  TG_ARGV[0]\n                );\n      END IF;\n    END IF;\n\n    RETURN NEW;\n  END IF;\n\n  configuration_changed =\n    OLD.lifecycle_configuration IS DISTINCT FROM NEW.lifecycle_configuration\n    OR OLD.lifecycle_configuration_generation IS DISTINCT FROM NEW.lifecycle_configuration_generation;\n\n  IF NOT configuration_changed THEN\n    RETURN NEW;\n  END IF;\n\n  IF NEW.type IS DISTINCT FROM 'STANDARD' THEN\n    RAISE EXCEPTION 'bucket versioning and lifecycle controls require a Standard bucket'\n      USING ERRCODE = '0A000';\n  END IF;\n\n  IF NEW.lifecycle_configuration IS NULL\n     AND NEW.lifecycle_configuration_generation IS NULL THEN\n    RETURN NEW;\n  END IF;\n\n  IF NEW.lifecycle_configuration IS NULL\n     OR NEW.lifecycle_configuration_generation IS NULL\n     OR OLD.lifecycle_configuration IS NOT DISTINCT FROM NEW.lifecycle_configuration\n     OR OLD.lifecycle_configuration_generation IS NOT DISTINCT FROM NEW.lifecycle_configuration_generation THEN\n    RAISE EXCEPTION 'a changed lifecycle policy requires a new non-null generation'\n      USING ERRCODE = '22023';\n  END IF;\n\n  RETURN NEW;\nEND;\n$function$\n"
+    },
+    {
+      "kind": "trigger",
+      "definition": "CREATE TRIGGER protect_bucket_control_update_role AFTER UPDATE OF lifecycle_configuration, lifecycle_configuration_generation ON storage.buckets FOR EACH ROW EXECUTE FUNCTION storage.enforce_bucket_lifecycle_service_role('service_role')",
+      "table_name": "buckets",
+      "schema_name": "storage",
+      "trigger_name": "protect_bucket_control_update_role",
+      "trigger_function": "CREATE OR REPLACE FUNCTION storage.enforce_bucket_lifecycle_service_role()\n RETURNS trigger\n LANGUAGE plpgsql\n SET search_path TO 'pg_catalog'\nAS $function$\nBEGIN\n  IF current_user::text IS DISTINCT FROM TG_ARGV[0] THEN\n    -- Keep this check AFTER caller RLS accepts the proposed row. The API\n    -- recognizes this exact signal after rolling back its permission probe.\n    RAISE EXCEPTION 'bucket control columns may only be changed by the configured storage service role'\n      USING ERRCODE = 'PST01',\n            SCHEMA = TG_TABLE_SCHEMA,\n            TABLE = TG_TABLE_NAME,\n            CONSTRAINT = TG_NAME;\n  END IF;\n\n  RETURN NULL;\nEND;\n$function$\n"
+    },
+    {
+      "kind": "trigger",
+      "definition": "CREATE TRIGGER protect_buckets_delete BEFORE DELETE ON storage.buckets FOR EACH STATEMENT EXECUTE FUNCTION storage.protect_delete()",
+      "table_name": "buckets",
+      "schema_name": "storage",
+      "trigger_name": "protect_buckets_delete",
+      "trigger_function": "CREATE OR REPLACE FUNCTION storage.protect_delete()\n RETURNS trigger\n LANGUAGE plpgsql\nAS $function$\nBEGIN\n    -- Check if storage.allow_delete_query is set to 'true'\n    IF COALESCE(current_setting('storage.allow_delete_query', true), 'false') != 'true' THEN\n        RAISE EXCEPTION 'Direct deletion from storage tables is not allowed. Use the Storage API instead.'\n            USING HINT = 'This prevents accidental data loss from orphaned objects.',\n                  ERRCODE = '42501';\n    END IF;\n    RETURN NULL;\nEND;\n$function$\n"
+    },
+    {
+      "kind": "trigger",
+      "definition": "CREATE TRIGGER wake_lifecycle_on_policy_write AFTER INSERT OR UPDATE OF lifecycle_configuration_generation ON storage.buckets FOR EACH ROW EXECUTE FUNCTION storage.wake_lifecycle_state()",
+      "table_name": "buckets",
+      "schema_name": "storage",
+      "trigger_name": "wake_lifecycle_on_policy_write",
+      "trigger_function": "CREATE OR REPLACE FUNCTION storage.wake_lifecycle_state()\n RETURNS trigger\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'pg_catalog'\nAS $function$\nBEGIN\n    IF TG_OP = 'INSERT' AND NEW.lifecycle_configuration IS NULL THEN\n        RETURN NEW;\n    END IF;\n\n    PERFORM storage.reconcile_lifecycle_state(NEW.id, false);\n    RETURN NEW;\nEND;\n$function$\n"
+    },
+    {
+      "kind": "trigger",
+      "definition": "CREATE TRIGGER wake_lifecycle_on_versioning_enable AFTER UPDATE OF versioning_status ON storage.buckets FOR EACH ROW WHEN ((new.lifecycle_configuration IS NOT NULL)) EXECUTE FUNCTION storage.wake_lifecycle_state()",
+      "table_name": "buckets",
+      "schema_name": "storage",
+      "trigger_name": "wake_lifecycle_on_versioning_enable",
+      "trigger_function": "CREATE OR REPLACE FUNCTION storage.wake_lifecycle_state()\n RETURNS trigger\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'pg_catalog'\nAS $function$\nBEGIN\n    IF TG_OP = 'INSERT' AND NEW.lifecycle_configuration IS NULL THEN\n        RETURN NEW;\n    END IF;\n\n    PERFORM storage.reconcile_lifecycle_state(NEW.id, false);\n    RETURN NEW;\nEND;\n$function$\n"
+    },
+    {
+      "kind": "trigger",
+      "definition": "CREATE TRIGGER protect_objects_delete BEFORE DELETE ON storage.objects FOR EACH STATEMENT EXECUTE FUNCTION storage.protect_delete()",
+      "table_name": "objects",
+      "schema_name": "storage",
+      "trigger_name": "protect_objects_delete",
+      "trigger_function": "CREATE OR REPLACE FUNCTION storage.protect_delete()\n RETURNS trigger\n LANGUAGE plpgsql\nAS $function$\nBEGIN\n    -- Check if storage.allow_delete_query is set to 'true'\n    IF COALESCE(current_setting('storage.allow_delete_query', true), 'false') != 'true' THEN\n        RAISE EXCEPTION 'Direct deletion from storage tables is not allowed. Use the Storage API instead.'\n            USING HINT = 'This prevents accidental data loss from orphaned objects.',\n                  ERRCODE = '42501';\n    END IF;\n    RETURN NULL;\nEND;\n$function$\n"
+    },
+    {
+      "kind": "trigger",
+      "definition": "CREATE TRIGGER update_objects_updated_at BEFORE UPDATE ON storage.objects FOR EACH ROW EXECUTE FUNCTION storage.update_updated_at_column()",
+      "table_name": "objects",
+      "schema_name": "storage",
+      "trigger_name": "update_objects_updated_at",
+      "trigger_function": "CREATE OR REPLACE FUNCTION storage.update_updated_at_column()\n RETURNS trigger\n LANGUAGE plpgsql\nAS $function$\nBEGIN\n    NEW.updated_at = now();\n    RETURN NEW; \nEND;\n$function$\n"
+    }
+  ]
+}
